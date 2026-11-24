@@ -3577,19 +3577,19 @@
       const xS_vertG = X_SOUTH - R1 - 0.03;
 
       // Left assembly (near Back):
-      // 4" White pipe: drops vertically from roof at Z = 6.9, down to Y = 12.0, jogs to Z = 10.0, drops to bottom 4" pipe
+      // 4" White pipe: drops vertically from roof at Z = 6.9 down to Y = 11.0, angles down to (Y = 10.0, Z = 10.0), drops to bottom 4" pipe
       group.add(createPipeRun([
         [xS_vert4, Y_ROOF, 6.9],
-        [xS_vert4, 12.0, 6.9],
-        [xS_vert4, 12.0, 10.0],
+        [xS_vert4, 11.0, 6.9],
+        [xS_vert4, 10.0, 10.0],
         [xS_vert4, Y_BOT_4, 10.0]
       ], R4, whitePipeMat, true, 'X'));
 
-      // 1" Green pipe: drops vertically from 3rd floor at Z = 7.6, at Y = 17.5 jogs across above toilet window to Z = 10.4, drops along right jamb to Y = 8.0
+      // 1" Green pipe: drops vertically from 3rd floor at Z = 7.6, jogs OVER toilet window at Y = 19.5 across to Z = 10.4, drops along right jamb to Y = 8.0
       group.add(createPipeRun([
         [xS_vertG, Y_3RD_FLOOR, 7.6],
-        [xS_vertG, 17.5, 7.6],
-        [xS_vertG, 17.5, 10.4],
+        [xS_vertG, 19.5, 7.6],
+        [xS_vertG, 19.5, 10.4],
         [xS_vertG, 8.0, 10.4]
       ], R1, greenPipeMat, true, 'X'));
 
