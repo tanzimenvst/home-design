@@ -3458,6 +3458,290 @@
     const thirdFloorCompleteGroup = buildThirdFloorComplete();
     buildingGroup.add(thirdFloorCompleteGroup);
 
+    // =========================================================================
+    // Exterior Plumbing & Drainage Pipes (South, North, Back outer walls)
+    // =========================================================================
+    function buildExteriorPipes() {
+      const group = new THREE.Group();
+      group.name = 'exteriorPipesGroup';
+
+      const whitePipeMat = new THREE.MeshStandardMaterial({
+        color: '#f0f3f6',
+        roughness: 0.32,
+        metalness: 0.05
+      });
+      const greenPipeMat = new THREE.MeshStandardMaterial({
+        color: '#1b7d34',
+        roughness: 0.36,
+        metalness: 0.08
+      });
+      const clampMat = new THREE.MeshStandardMaterial({
+        color: '#343a40',
+        roughness: 0.55,
+        metalness: 0.35
+      });
+
+      function createPipeRun(points, radius, material, addClamps = true, wallFace = null) {
+        const pipeSubGroup = new THREE.Group();
+        const sphereGeom = new THREE.SphereGeometry(radius * 1.05, 16, 16);
+
+        for (let i = 0; i < points.length - 1; i++) {
+          const p1 = new THREE.Vector3(...points[i]);
+          const p2 = new THREE.Vector3(...points[i + 1]);
+          const v = new THREE.Vector3().subVectors(p2, p1);
+          const len = v.length();
+          if (len < 0.001) continue;
+
+          const cylGeom = new THREE.CylinderGeometry(radius, radius, len, 18);
+          const mesh = new THREE.Mesh(cylGeom, material);
+
+          const mid = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
+          mesh.position.copy(mid);
+
+          const up = new THREE.Vector3(0, 1, 0);
+          const quat = new THREE.Quaternion().setFromUnitVectors(up, v.clone().normalize());
+          mesh.quaternion.copy(quat);
+          pipeSubGroup.add(mesh);
+
+          if (i > 0) {
+            const joint = new THREE.Mesh(sphereGeom, material);
+            joint.position.copy(p1);
+            pipeSubGroup.add(joint);
+          }
+
+          if (addClamps && wallFace && Math.abs(v.y) > 4.0) {
+            const numClamps = Math.max(1, Math.floor(len / 8.0));
+            for (let c = 1; c <= numClamps; c++) {
+              const t = c / (numClamps + 1);
+              const cp = new THREE.Vector3().lerpVectors(p1, p2, t);
+              const clampGeom = (wallFace === 'X') ?
+                new THREE.BoxGeometry(0.12, 0.08, radius * 2.8) :
+                new THREE.BoxGeometry(radius * 2.8, 0.08, 0.12);
+              const clampMesh = new THREE.Mesh(clampGeom, clampMat);
+              clampMesh.position.copy(cp);
+              pipeSubGroup.add(clampMesh);
+            }
+          }
+        }
+        return pipeSubGroup;
+      }
+
+      // Pipe Radii (in ft)
+      const R6 = 0.25;      // 6-inch diameter
+      const R4 = 0.167;     // 4-inch diameter
+      const R2 = 0.0833;    // 2-inch diameter (drinking water main)
+      const R1 = 0.0417;    // 1-inch diameter (drinking water branches)
+
+      // Heights
+      const Y_BOT_6 = 0.45;  // 6-inch pipe centerline at base
+      const Y_BOT_4 = 1.15;  // 4-inch pipe centerline above 6-inch pipe
+      const Y_ROOF = 34.85;  // Top parapet level
+      const Y_3RD_FLOOR = 32.0;
+
+      // Outer wall planes
+      const X_SOUTH = 0.03;
+      const X_NORTH = 56.68;
+      const Z_BACK = 0.01;
+
+      // 1. HORIZONTAL BOTTOM PIPES (Continuous wrap around South, Back, North)
+      const southZMax = 35.5;
+      const northZMax = 35.5;
+
+      const xS6 = X_SOUTH - R6 - 0.04;
+      const xS4 = X_SOUTH - R4 - 0.04;
+
+      const zB6 = Z_BACK - R6 - 0.04;
+      const zB4 = Z_BACK - R4 - 0.04;
+
+      const xN6 = X_NORTH + R6 + 0.04;
+      const xN4 = X_NORTH + R4 + 0.04;
+
+      // 6-inch bottom pipe continuous run
+      group.add(createPipeRun([
+        [xS6, Y_BOT_6, southZMax],
+        [xS6, Y_BOT_6, zB6],
+        [xN6, Y_BOT_6, zB6],
+        [xN6, Y_BOT_6, northZMax]
+      ], R6, whitePipeMat, false));
+
+      // 4-inch upper bottom pipe continuous run
+      group.add(createPipeRun([
+        [xS4, Y_BOT_4, southZMax],
+        [xS4, Y_BOT_4, zB4],
+        [xN4, Y_BOT_4, zB4],
+        [xN4, Y_BOT_4, northZMax]
+      ], R4, whitePipeMat, false));
+
+      // 2. SOUTH FACADE PIPES (Image 1)
+      const xS_vert4 = X_SOUTH - R4 - 0.03;
+      const xS_vertG = X_SOUTH - R1 - 0.03;
+
+      // Left assembly (near Back):
+      // 4-inch white vertical pipe: drops at Z = 7.2, jogs at Y = 11.5 to Z = 9.8, drops to bottom 4" pipe
+      group.add(createPipeRun([
+        [xS_vert4, Y_ROOF, 7.2],
+        [xS_vert4, 11.5, 7.2],
+        [xS_vert4, 11.5, 9.8],
+        [xS_vert4, Y_BOT_4, 9.8]
+      ], R4, whitePipeMat, true, 'X'));
+
+      // 1-inch green drinking water pipe alongside: drops at Z = 7.7, jogs at Y = 15.0 to Z = 11.2, drops to Y = 8.0
+      group.add(createPipeRun([
+        [xS_vertG, Y_3RD_FLOOR, 7.7],
+        [xS_vertG, 15.0, 7.7],
+        [xS_vertG, 15.0, 11.2],
+        [xS_vertG, 8.0, 11.2]
+      ], R1, greenPipeMat, true, 'X'));
+
+      // Right assembly (near Front):
+      // 4-inch white vertical pipe: straight at Z = 33.2 from roof to bottom
+      group.add(createPipeRun([
+        [xS_vert4, Y_ROOF, 33.2],
+        [xS_vert4, Y_BOT_4, 33.2]
+      ], R4, whitePipeMat, true, 'X'));
+
+      // 1-inch green drinking water pipe: drops at Z = 32.6, jogs at Y = 10.0 to Z = 27.5, drops to Y = 2.0
+      group.add(createPipeRun([
+        [xS_vertG, Y_3RD_FLOOR, 32.6],
+        [xS_vertG, 10.0, 32.6],
+        [xS_vertG, 10.0, 27.5],
+        [xS_vertG, 2.0, 27.5]
+      ], R1, greenPipeMat, true, 'X'));
+
+      // 3. NORTH FACADE PIPES (Image 2)
+      const xN_vert4 = X_NORTH + R4 + 0.03;
+      const xN_vertG = X_NORTH + R1 + 0.03;
+
+      // Left assembly (near Front):
+      // 4-inch white vertical pipe: straight at Z = 33.2
+      group.add(createPipeRun([
+        [xN_vert4, Y_ROOF, 33.2],
+        [xN_vert4, Y_BOT_4, 33.2]
+      ], R4, whitePipeMat, true, 'X'));
+
+      // 1-inch green drinking water pipe straight down at Z = 33.7
+      group.add(createPipeRun([
+        [xN_vertG, Y_3RD_FLOOR, 33.7],
+        [xN_vertG, 2.0, 33.7]
+      ], R1, greenPipeMat, true, 'X'));
+
+      // Right assembly (near Back):
+      // 4-inch white vertical pipe: drops at Z = 10.5 to Y = 17.5, jogs to Z = 11.8, drops to bottom
+      group.add(createPipeRun([
+        [xN_vert4, Y_ROOF, 10.5],
+        [xN_vert4, 17.5, 10.5],
+        [xN_vert4, 17.5, 11.8],
+        [xN_vert4, Y_BOT_4, 11.8]
+      ], R4, whitePipeMat, true, 'X'));
+
+      // 1-inch green drinking water pipe runs parallel (at Z = 9.8 above, jogs to 11.1 below)
+      group.add(createPipeRun([
+        [xN_vertG, Y_3RD_FLOOR, 9.8],
+        [xN_vertG, 17.5, 9.8],
+        [xN_vertG, 17.5, 11.1],
+        [xN_vertG, 2.0, 11.1]
+      ], R1, greenPipeMat, true, 'X'));
+
+      // 4. BACK FACADE PIPES (Image 3)
+      const zB_vert4 = Z_BACK - R4 - 0.03;
+      const zB_vertG2 = Z_BACK - R2 - 0.03;
+      const zB_vertG1 = Z_BACK - R1 - 0.03;
+
+      // Main 4-inch white waste stack at X = 24.2
+      group.add(createPipeRun([
+        [24.2, Y_ROOF, zB_vert4],
+        [24.2, Y_BOT_4, zB_vert4]
+      ], R4, whitePipeMat, true, 'Z'));
+
+      // 2nd floor horizontal drain branch to left: from X = 24.2 to X = 13.8 at Y = 19.0
+      group.add(createPipeRun([
+        [24.2, 19.0, zB_vert4],
+        [13.8, 19.0, zB_vert4],
+        [13.8, 21.0, zB_vert4] // stub 1
+      ], R4, whitePipeMat, false));
+
+      // Stub 2 at X = 15.0
+      group.add(createPipeRun([
+        [15.0, 19.0, zB_vert4],
+        [15.0, 20.5, zB_vert4]
+      ], R4, whitePipeMat, false));
+
+      // 1st floor horizontal drain branch to left: from X = 24.2 to X = 18.0 at Y = 8.5
+      group.add(createPipeRun([
+        [24.2, 8.5, zB_vert4],
+        [18.0, 8.5, zB_vert4],
+        [18.0, 9.8, zB_vert4] // stub
+      ], R4, whitePipeMat, false));
+
+      // Small stub between center windows at X = 28.4, Y = 8.5 to 10.0
+      group.add(createPipeRun([
+        [28.4, 8.5, zB_vert4],
+        [28.4, 10.0, zB_vert4]
+      ], R4, whitePipeMat, false));
+
+      // Right vertical 4-inch white pipe (under Window 34) at X = 44.5, from Y = 6.0 to Y_BOT_4
+      group.add(createPipeRun([
+        [44.5, 6.0, zB_vert4],
+        [44.5, Y_BOT_4, zB_vert4]
+      ], R4, whitePipeMat, false));
+
+      // Cleanout stubs on bottom pipe: at X = 20.0 and X = 37.0
+      group.add(createPipeRun([
+        [20.0, Y_BOT_4, zB_vert4],
+        [20.0, 2.5, zB_vert4]
+      ], R4, whitePipeMat, false));
+      group.add(createPipeRun([
+        [37.0, Y_BOT_4, zB_vert4],
+        [37.0, 2.5, zB_vert4]
+      ], R4, whitePipeMat, false));
+
+      // Green Drinking Water Network:
+      // Main 2-inch Downcomer from rooftop water tanks:
+      // Connects from tank outlet at X = 28.34, Z = 4.25, Y = 32.6 to back wall, then drops down between center windows
+      group.add(createPipeRun([
+        [28.34, 32.6, 4.25],
+        [28.34, 32.6, zB_vertG2],
+        [28.34, 8.0, zB_vertG2]
+      ], R2, greenPipeMat, true, 'Z'));
+
+      // 2-inch Horizontal Distribution Header at Y = 8.0: from X = 20.0 to X = 47.5
+      // With clean bridge in front of the white vertical stack at X = 24.2
+      const zB_bridge = zB_vert4 - R2 - 0.04;
+      group.add(createPipeRun([
+        [20.0, 0.5, zB_vertG2], // left vertical drop to ground
+        [20.0, 8.0, zB_vertG2],
+        [23.7, 8.0, zB_vertG2],
+        [23.9, 8.0, zB_bridge],
+        [24.5, 8.0, zB_bridge],
+        [24.7, 8.0, zB_vertG2],
+        [47.5, 8.0, zB_vertG2]
+      ], R2, greenPipeMat, false));
+
+      // Vertical 1-inch branch drop at X = 35.5 from Y = 8.0 to Y = 0.5
+      group.add(createPipeRun([
+        [35.5, 8.0, zB_vertG1],
+        [35.5, 0.5, zB_vertG1]
+      ], R1, greenPipeMat, false));
+
+      // Right vertical 1-inch green pipe at X = 47.5, from roof Y = 34.85 to ground Y = 0.5
+      group.add(createPipeRun([
+        [47.5, Y_ROOF, zB_vertG1],
+        [47.5, 0.5, zB_vertG1]
+      ], R1, greenPipeMat, true, 'Z'));
+
+      // Left vertical 1-inch green pipe at X = 10.5, from roof Y = 34.85 down to Y = 19.0
+      group.add(createPipeRun([
+        [10.5, Y_ROOF, zB_vertG1],
+        [10.5, 19.0, zB_vertG1]
+      ], R1, greenPipeMat, true, 'Z'));
+
+      return group;
+    }
+
+    const exteriorPipesGroup = buildExteriorPipes();
+    buildingGroup.add(exteriorPipesGroup);
+    window.exteriorPipesGroup = exteriorPipesGroup;
+
     buildingContainer.add(buildingGroup);
     scene.add(buildingContainer);
 
@@ -4094,8 +4378,10 @@
         secondFloorGroup.position.y = 22.0;
         secondFloorGroup.visible = true;
         secondFloorStairOpaque.visible = true;
+        if (window.exteriorPipesGroup) window.exteriorPipesGroup.visible = true;
         groundFloorGroup.visible = true;
         firstFloorGroup.visible = true;
+        if (window.exteriorPipesGroup) window.exteriorPipesGroup.visible = true;
 
         wallMat[0].color.set('#eeeae1');
         wallMat[1].color.set('#eeeae1');
@@ -4224,6 +4510,7 @@
         thirdFloorCurrentGroup.visible = false;
         thirdFloorCompleteGroup.visible = false;
         secondFloorStairOpaque.visible = false;
+        if (window.exteriorPipesGroup) window.exteriorPipesGroup.visible = false;
 
         scene.background = studioBgColor;
         ground.material = studioGroundMat;
@@ -4272,6 +4559,7 @@
         secondFloorGroup.position.y = 22.0;
         secondFloorGroup.visible = true;
         secondFloorStairOpaque.visible = true;
+        if (window.exteriorPipesGroup) window.exteriorPipesGroup.visible = true;
 
         wallMat[0].color.set('#eeeae1');
         wallMat[1].color.set('#eeeae1');
@@ -4290,6 +4578,7 @@
 
         groundFloorGroup.visible = true;
         firstFloorGroup.visible = true;
+        if (window.exteriorPipesGroup) window.exteriorPipesGroup.visible = true;
 
         scene.background = skyTexture || new THREE.Color('#8ec4ea');
         ground.position.set(0, -0.28, 0);
