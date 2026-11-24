@@ -3608,37 +3608,35 @@
         [xS_vertG, 2.0, 24.5]
       ], R1, greenPipeMat, true, 'X'));
 
-      // 3. NORTH FACADE PIPES (Image 2)
+      // 3. NORTH FACADE PIPES (Image 2 - User Correction)
       const xN_vert4 = X_NORTH + R4 + 0.03;
       const xN_vertG = X_NORTH + R1 + 0.03;
 
-      // Left assembly (near Front):
-      // In Wall Feat 24 (Z in [25.42, 29.74]), to the RIGHT of the small vent windows!
-      // Green pipe at Z = 29.0, White pipe at Z = 28.2 (parallel straight drops)
+      // Left assembly (near Front): First White (Z = 29.0), then Green (Z = 28.2)
       group.add(createPipeRun([
-        [xN_vertG, Y_3RD_FLOOR, 29.0],
-        [xN_vertG, 2.0, 29.0]
-      ], R1, greenPipeMat, true, 'X'));
-
-      group.add(createPipeRun([
-        [xN_vert4, Y_ROOF, 28.2],
-        [xN_vert4, Y_BOT_4, 28.2]
+        [xN_vert4, Y_ROOF, 29.0],
+        [xN_vert4, Y_BOT_4, 29.0]
       ], R4, whitePipeMat, true, 'X'));
 
-      // Right assembly (near Back):
-      // White pipe: drops at Z = 10.6 (aligned with 3rd floor window jamb), at Y = 17.5 jogs left to Z = 12.8, drops to bottom
       group.add(createPipeRun([
-        [xN_vert4, Y_ROOF, 10.6],
-        [xN_vert4, 17.5, 10.6],
-        [xN_vert4, 17.5, 12.8],
+        [xN_vertG, Y_3RD_FLOOR, 28.2],
+        [xN_vertG, 2.0, 28.2]
+      ], R1, greenPipeMat, true, 'X'));
+
+      // Right assembly (near Back):
+      // 4" White pipe: drops vertically from roof at Z = 9.6 down to Y = 20.5, angles down to (Y = 19.5, Z = 12.8), drops to bottom 4" pipe
+      group.add(createPipeRun([
+        [xN_vert4, Y_ROOF, 9.6],
+        [xN_vert4, 20.5, 9.6],
+        [xN_vert4, 19.5, 12.8],
         [xN_vert4, Y_BOT_4, 12.8]
       ], R4, whitePipeMat, true, 'X'));
 
-      // Green pipe: drops at Z = 11.3, at Y = 17.5 jogs left to Z = 13.5, drops to Y = 2.0
+      // 1" Green pipe: drops vertically from 3rd floor at Z = 10.3 down to Y = 21.0, jogs across to Z = 13.5, drops to Y = 2.0
       group.add(createPipeRun([
-        [xN_vertG, Y_3RD_FLOOR, 11.3],
-        [xN_vertG, 17.5, 11.3],
-        [xN_vertG, 17.5, 13.5],
+        [xN_vertG, Y_3RD_FLOOR, 10.3],
+        [xN_vertG, 21.0, 10.3],
+        [xN_vertG, 21.0, 13.5],
         [xN_vertG, 2.0, 13.5]
       ], R1, greenPipeMat, true, 'X'));
 
