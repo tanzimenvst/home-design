@@ -3249,8 +3249,8 @@
       group.add(buildStairRoomPortion(42.0, 3.0));
 
       // 2 plastic 1000L water tanks on rooftop terrace before stair-room door
-      // Tanks height from floor: 7 ft, radius: 1.5 ft, gap: 6 inches (0.5 ft)
-      // Placed immediately inside the back parapet wall
+      // Tanks height from floor: 6 ft, radius: 2.5 ft, gap: 6 inches (0.5 ft)
+      // Placed in center bay against pillar face before stair-room door, with rings removed and decreased neck slope
       const tankMat = new THREE.MeshStandardMaterial({
         color: '#1f1f1f',
         roughness: 0.42,
@@ -3264,78 +3264,75 @@
 
       function createSingleWaterTank(x, yBase, z) {
         const tg = new THREE.Group();
-        const R = 1.5;   // radius 1.5 ft (diameter 3 ft)
-        const H = 7.0;   // total height 7.0 ft
+        const R = 2.5;   // radius 2.5 ft (diameter 5.0 ft)
+        const H = 6.0;   // total height 6.0 ft
 
-        // 1. Main vertical cylinder body (height 5.8 ft from y = 0.2 to 6.0)
-        const bodyH = 5.8;
-        const bodyGeom = new THREE.CylinderGeometry(R, R, bodyH, 32);
-        const bodyMesh = new THREE.Mesh(bodyGeom, tankMat);
-        bodyMesh.position.y = 0.2 + bodyH / 2; // y = 3.1
-        tg.add(bodyMesh);
-
-        // 2. Base bottom rim
-        const baseGeom = new THREE.CylinderGeometry(R * 0.98, R * 0.94, 0.2, 32);
+        // 1. Base bottom rim
+        const baseH = 0.20;
+        const baseGeom = new THREE.CylinderGeometry(R * 0.98, R * 0.94, baseH, 36);
         const baseMesh = new THREE.Mesh(baseGeom, tankMat);
-        baseMesh.position.y = 0.1;
+        baseMesh.position.y = baseH / 2;
         tg.add(baseMesh);
 
-        // 3. Horizontal molded ribs (7 ribs along the cylinder body)
-        const ribGeom = new THREE.TorusGeometry(R + 0.02, 0.035, 8, 32);
+        // 2. Main vertical cylinder body (height 5.0 ft from y = 0.2 to 5.2)
+        const bodyH = 5.0;
+        const bodyGeom = new THREE.CylinderGeometry(R, R, bodyH, 36);
+        const bodyMesh = new THREE.Mesh(bodyGeom, tankMat);
+        bodyMesh.position.y = baseH + bodyH / 2; // y = 2.70
+        tg.add(bodyMesh);
+
+        // 3. Horizontal molded ribs (6 ribs evenly spaced along the cylinder body)
+        const ribGeom = new THREE.TorusGeometry(R + 0.02, 0.04, 8, 36);
         ribGeom.rotateX(Math.PI / 2);
-        const ribYPositions = [0.9, 1.6, 2.3, 3.0, 3.7, 4.4, 5.1];
+        const ribYPositions = [0.9, 1.7, 2.5, 3.3, 4.1, 4.9];
         for (const ry of ribYPositions) {
           const rib = new THREE.Mesh(ribGeom, tankMat);
           rib.position.y = ry;
           tg.add(rib);
         }
 
-        // 4. Upper shoulder dome
-        const domeH = 0.55;
-        const domeGeom = new THREE.CylinderGeometry(R * 0.88, R, domeH, 32);
+        // 4. Gentle shoulder dome (decreased slope: low-rise gentle taper from R to 0.72*R)
+        const domeH = 0.35;
+        const domeRTop = R * 0.72; // 1.80 ft
+        const domeGeom = new THREE.CylinderGeometry(domeRTop, R, domeH, 36);
         const domeMesh = new THREE.Mesh(domeGeom, tankMat);
-        domeMesh.position.y = 6.0 + domeH / 2;
+        domeMesh.position.y = 5.20 + domeH / 2;
         tg.add(domeMesh);
 
-        // 5. Shoulder top cap
-        const capH = 0.25;
-        const capGeom = new THREE.CylinderGeometry(0.70, R * 0.88, capH, 32);
+        // 5. Gentle inner shoulder cap (radius 1.80 down to 1.10 ft)
+        const capH = 0.20;
+        const capRTop = 1.10;
+        const capGeom = new THREE.CylinderGeometry(capRTop, domeRTop, capH, 36);
         const capMesh = new THREE.Mesh(capGeom, tankMat);
-        capMesh.position.y = 6.55 + capH / 2;
+        capMesh.position.y = 5.55 + capH / 2;
         tg.add(capMesh);
 
-        // 6. Central inspection neck & screw lid
-        const neckH = 0.18;
-        const neckGeom = new THREE.CylinderGeometry(0.62, 0.62, neckH, 24);
+        // 6. Central inspection neck (radius 1.0)
+        const neckH = 0.17;
+        const neckGeom = new THREE.CylinderGeometry(1.0, 1.0, neckH, 32);
         const neckMesh = new THREE.Mesh(neckGeom, tankLidMat);
-        neckMesh.position.y = 6.80 + neckH / 2;
+        neckMesh.position.y = 5.75 + neckH / 2;
         tg.add(neckMesh);
 
+        // 7. Screw lid cap (radius 1.06)
         const lidH = 0.08;
-        const lidGeom = new THREE.CylinderGeometry(0.66, 0.66, lidH, 24);
+        const lidGeom = new THREE.CylinderGeometry(1.06, 1.06, lidH, 32);
         const lidMesh = new THREE.Mesh(lidGeom, tankLidMat);
-        lidMesh.position.y = 6.96 + lidH / 2;
+        lidMesh.position.y = 5.92 + lidH / 2;
         tg.add(lidMesh);
 
-        // 7. Four vertical molded reinforcement ribs on shoulder
-        const gussetGeom = new THREE.BoxGeometry(0.12, 0.40, 0.28);
+        // 8. Molded vertical reinforcement gussets on shoulder (4 gussets, low profile)
+        const gussetGeom = new THREE.BoxGeometry(0.16, 0.26, 0.35);
         const gussetAngles = [0, Math.PI / 2, Math.PI, Math.PI * 1.5];
         for (const ga of gussetAngles) {
           const g = new THREE.Mesh(gussetGeom, tankMat);
-          const gr = R * 0.90;
-          g.position.set(Math.cos(ga) * gr, 6.25, Math.sin(ga) * gr);
+          const gr = R * 0.85;
+          g.position.set(Math.cos(ga) * gr, 5.36, Math.sin(ga) * gr);
           g.rotation.y = -ga;
           tg.add(g);
         }
 
-        // 8. Lifting eyelet lugs
-        const lugGeom = new THREE.TorusGeometry(0.08, 0.02, 6, 16);
-        const lug1 = new THREE.Mesh(lugGeom, tankMat);
-        lug1.position.set(-R * 0.75, 6.75, 0);
-        tg.add(lug1);
-        const lug2 = new THREE.Mesh(lugGeom, tankMat);
-        lug2.position.set(R * 0.75, 6.75, 0);
-        tg.add(lug2);
+        // Lifting eyelet rings removed as requested
 
         tg.position.set(x, yBase, z);
         return tg;
@@ -3344,11 +3341,11 @@
       const yFloor = 32.35;
       const xMid = 28.338;
       const gap = 0.50; // 6 inch gap
-      const R = 1.5;
-      const distCenters = 2 * R + gap; // 3.5 ft
-      const x1 = xMid - distCenters / 2; // 26.588
-      const x2 = xMid + distCenters / 2; // 30.088
-      const zTanks = 0.519 + 0.15 + R;    // 2.169 ft
+      const R = 2.5;
+      const distCenters = 2 * R + gap; // 5.5 ft
+      const x1 = xMid - distCenters / 2; // 25.588
+      const x2 = xMid + distCenters / 2; // 31.088
+      const zTanks = 1.75 + R;          // 4.25 ft (directly against front face of pillars)
 
       const waterTanksGroup = new THREE.Group();
       waterTanksGroup.name = 'rooftopWaterTanksGroup';
