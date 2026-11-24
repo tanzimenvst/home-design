@@ -3645,58 +3645,58 @@
       const zB_vertG2 = Z_BACK - R2 - 0.03;
       const zB_vertG1 = Z_BACK - R1 - 0.03;
 
-      // Main 4" White waste stack at X = 24.0 (in solid wall immediately to left of center window)
+      // Main 4" White waste stack at X = 32.7 (in solid wall immediately to left of center window pair)
       group.add(createPipeRun([
-        [24.0, Y_ROOF, zB_vert4],
-        [24.0, Y_BOT_4, zB_vert4]
+        [32.7, Y_ROOF, zB_vert4],
+        [32.7, Y_BOT_4, zB_vert4]
       ], R4, whitePipeMat, true, 'Z'));
 
-      // 2nd floor horizontal drain branch: at Y = 21.0 (under window sill at 24.5), runs left to X = 13.5
+      // 2nd floor horizontal drain branch: at Y = 21.0 (under window sill at 24.5), runs left to X = 43.2
       group.add(createPipeRun([
-        [24.0, 21.0, zB_vert4],
-        [13.5, 21.0, zB_vert4],
-        [13.5, 23.5, zB_vert4] // stub 1
+        [32.7, 21.0, zB_vert4],
+        [43.2, 21.0, zB_vert4],
+        [43.2, 23.5, zB_vert4] // stub 1 (outer)
       ], R4, whitePipeMat, false));
 
-      // Stub 2 at X = 15.5
+      // Stub 2 at X = 41.2 (inner)
       group.add(createPipeRun([
-        [15.5, 21.0, zB_vert4],
-        [15.5, 23.0, zB_vert4]
+        [41.2, 21.0, zB_vert4],
+        [41.2, 23.0, zB_vert4]
       ], R4, whitePipeMat, false));
 
-      // 1st floor horizontal drain branch to left: from X = 24.0 to X = 18.0 at Y = 9.0
+      // 1st floor horizontal drain branch to left: from X = 32.7 to X = 38.7 at Y = 9.0
       group.add(createPipeRun([
-        [24.0, 9.0, zB_vert4],
-        [18.0, 9.0, zB_vert4],
-        [18.0, 10.5, zB_vert4] // stub
+        [32.7, 9.0, zB_vert4],
+        [38.7, 9.0, zB_vert4],
+        [38.7, 10.5, zB_vert4] // stub
       ], R4, whitePipeMat, false));
 
-      // 1st floor horizontal drain branch to right: from X = 24.0 to X = 28.4 at Y = 9.0
+      // 1st floor horizontal drain branch to right: from X = 32.7 to X = 28.3 at Y = 9.0
       group.add(createPipeRun([
-        [24.0, 9.0, zB_vert4],
-        [28.4, 9.0, zB_vert4],
-        [28.4, 10.5, zB_vert4] // stub
+        [32.7, 9.0, zB_vert4],
+        [28.3, 9.0, zB_vert4],
+        [28.3, 10.5, zB_vert4] // stub
       ], R4, whitePipeMat, false));
 
-      // Right vertical 4" white pipe (under Ground small window at X ~ 45.8): from Y = 5.5 to bottom
+      // Right vertical 4" white pipe (under Ground small window at X ~ 10.9): from Y = 5.5 to bottom
       group.add(createPipeRun([
-        [45.8, 5.5, zB_vert4],
-        [45.8, Y_BOT_4, zB_vert4]
+        [10.9, 5.5, zB_vert4],
+        [10.9, Y_BOT_4, zB_vert4]
       ], R4, whitePipeMat, false));
 
-      // Cleanout stubs on bottom pipe: at X = 20.0 and X = 36.0
+      // Cleanout stubs on bottom pipe: at X = 36.7 and X = 20.7
       group.add(createPipeRun([
-        [20.0, Y_BOT_4, zB_vert4],
-        [20.0, 2.5, zB_vert4]
+        [36.7, Y_BOT_4, zB_vert4],
+        [36.7, 2.5, zB_vert4]
       ], R4, whitePipeMat, false));
       group.add(createPipeRun([
-        [36.0, Y_BOT_4, zB_vert4],
-        [36.0, 2.5, zB_vert4]
+        [20.7, Y_BOT_4, zB_vert4],
+        [20.7, 2.5, zB_vert4]
       ], R4, whitePipeMat, false));
 
       // Green Drinking Water Network:
       // Main 2" Downcomer from rooftop water tanks:
-      // Originates at tanks (X = 28.34, Z = 4.25, Y = 32.6), runs to back wall, drops vertically through center mullion (X = 28.41) down to floor beam band Y = 11.8
+      // Originates at tanks (X = 28.34, Z = 4.25, Y = 32.6), runs to back wall, drops vertically through center mullion (X = 28.34) down to floor beam band Y = 11.8
       group.add(createPipeRun([
         [28.34, 32.6, 4.25],
         [28.34, 32.6, zB_vertG2],
@@ -3704,35 +3704,40 @@
       ], R2, greenPipeMat, true, 'Z'));
 
       // 2" Horizontal Distribution Header at Y = 11.8 (in floor beam band between 2nd and 1st floor):
-      // From X = 23.8 to X = 47.5
-      // With bridge around white stack at X = 24.0
+      // From X = 47.5 (left) across to X = 9.2 (right)
+      // With bridge around white stack at X = 32.7
       const zB_bridge = zB_vert4 - R2 - 0.04;
       group.add(createPipeRun([
-        [23.8, 0.5, zB_vertG2], // left vertical drop to ground
-        [23.8, 11.8, zB_vertG2],
-        [23.5, 11.8, zB_vertG2],
-        [23.7, 11.8, zB_bridge],
-        [24.3, 11.8, zB_bridge],
-        [24.5, 11.8, zB_vertG2],
-        [47.5, 11.8, zB_vertG2]
+        [47.5, 11.8, zB_vertG2],
+        [33.2, 11.8, zB_vertG2],
+        [33.0, 11.8, zB_bridge],
+        [32.4, 11.8, zB_bridge],
+        [32.2, 11.8, zB_vertG2],
+        [9.2, 11.8, zB_vertG2]
       ], R2, greenPipeMat, false));
 
-      // Vertical 1" branch drop at X = 35.8 from Y = 11.8 down to Y = 0.5
+      // Vertical 1" branch drop at X = 47.5 from Y = 11.8 down to Y = 0.5 (left drop)
       group.add(createPipeRun([
-        [35.8, 11.8, zB_vertG1],
-        [35.8, 0.5, zB_vertG1]
+        [47.5, 11.8, zB_vertG1],
+        [47.5, 0.5, zB_vertG1]
       ], R1, greenPipeMat, false));
 
-      // Right vertical 1" green pipe at X = 47.5, from roof Y = 34.85 all the way to ground Y = 0.5
+      // Vertical 1" branch drop at X = 20.8 from Y = 11.8 down to Y = 0.5 (middle drop)
       group.add(createPipeRun([
-        [47.5, Y_ROOF, zB_vertG1],
-        [47.5, 0.5, zB_vertG1]
+        [20.8, 11.8, zB_vertG1],
+        [20.8, 0.5, zB_vertG1]
+      ], R1, greenPipeMat, false));
+
+      // Right vertical 1" green pipe at X = 9.2, from roof Y = 34.85 all the way to ground Y = 0.5
+      group.add(createPipeRun([
+        [9.2, Y_ROOF, zB_vertG1],
+        [9.2, 0.5, zB_vertG1]
       ], R1, greenPipeMat, true, 'Z'));
 
-      // Left vertical 1" green pipe at X = 9.8 (in solid wall between veranda and bedroom window), from roof Y = 34.85 down to 2nd floor Y = 22.0
+      // Left vertical 1" green pipe at X = 46.9 (in solid wall between North corner and bedroom window), from roof Y = 34.85 down to 2nd floor Y = 22.0
       group.add(createPipeRun([
-        [9.8, Y_ROOF, zB_vertG1],
-        [9.8, 22.0, zB_vertG1]
+        [46.9, Y_ROOF, zB_vertG1],
+        [46.9, 22.0, zB_vertG1]
       ], R1, greenPipeMat, true, 'Z'));
 
       return group;
