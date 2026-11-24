@@ -3572,38 +3572,38 @@
         [xN4, Y_BOT_4, northZMax]
       ], R4, whitePipeMat, false));
 
-      // 2. SOUTH FACADE PIPES (Image 1)
+      // 2. SOUTH FACADE PIPES (Image 1 - User Correction)
       const xS_vert4 = X_SOUTH - R4 - 0.03;
       const xS_vertG = X_SOUTH - R1 - 0.03;
 
-      // Left assembly:
-      // 4" White pipe: drops at Z = 6.0 (at the parapet step), down to Y = 12.0, jogs to Z = 10.0 (in solid wall before window), drops to bottom 4" pipe
+      // Left assembly (near Back):
+      // 4" White pipe: drops vertically from roof at Z = 6.9, down to Y = 12.0, jogs to Z = 10.0, drops to bottom 4" pipe
       group.add(createPipeRun([
-        [xS_vert4, Y_ROOF, 6.0],
-        [xS_vert4, 12.0, 6.0],
+        [xS_vert4, Y_ROOF, 6.9],
+        [xS_vert4, 12.0, 6.9],
         [xS_vert4, 12.0, 10.0],
         [xS_vert4, Y_BOT_4, 10.0]
       ], R4, whitePipeMat, true, 'X'));
 
-      // 1" Green pipe: drops at Z = 6.6, at Y = 17.5 jogs across above small window to Z = 10.4, drops down along right jamb to Y = 8.0
+      // 1" Green pipe: drops vertically from 3rd floor at Z = 7.6, at Y = 17.5 jogs across above toilet window to Z = 10.4, drops along right jamb to Y = 8.0
       group.add(createPipeRun([
-        [xS_vertG, Y_3RD_FLOOR, 6.6],
-        [xS_vertG, 17.5, 6.6],
+        [xS_vertG, Y_3RD_FLOOR, 7.6],
+        [xS_vertG, 17.5, 7.6],
         [xS_vertG, 17.5, 10.4],
         [xS_vertG, 8.0, 10.4]
       ], R1, greenPipeMat, true, 'X'));
 
       // Right assembly:
-      // 4" White pipe: straight down at Z = 33.8 (centered in solid wall beside veranda grill)
+      // 4" White pipe: drops straight down at Z = 29.35 (immediately left of small vent window) from roof to bottom 4" pipe
       group.add(createPipeRun([
-        [xS_vert4, Y_ROOF, 33.8],
-        [xS_vert4, Y_BOT_4, 33.8]
+        [xS_vert4, Y_ROOF, 29.35],
+        [xS_vert4, Y_BOT_4, 29.35]
       ], R4, whitePipeMat, true, 'X'));
 
-      // 1" Green pipe: drops at Z = 33.1, at Y = 11.2 jogs across window header to Z = 24.5 (left jamb of clerestory window), drops to Y = 2.0
+      // 1" Green pipe: drops from 3rd floor at Z = 28.75, at Y = 11.2 jogs across clerestory window lintel to Z = 24.5 (left jamb), drops to Y = 2.0
       group.add(createPipeRun([
-        [xS_vertG, Y_3RD_FLOOR, 33.1],
-        [xS_vertG, 11.2, 33.1],
+        [xS_vertG, Y_3RD_FLOOR, 28.75],
+        [xS_vertG, 11.2, 28.75],
         [xS_vertG, 11.2, 24.5],
         [xS_vertG, 2.0, 24.5]
       ], R1, greenPipeMat, true, 'X'));
