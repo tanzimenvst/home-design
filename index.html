@@ -3696,26 +3696,19 @@
 
       // Green Drinking Water Network:
       // Main 2" Downcomer from rooftop water tanks:
-      // Connects from tanks (X = 28.34, Z = 4.25, Y = 32.6) to back wall, drops vertically through center mullion from Y = 33.3 down to header Y = 11.4
+      // Connects from tanks (X = 28.34, Z = 4.25, Y = 32.6) inside parapet to 2nd floor roof Y = 32.0, then drops vertically down to header Y = 11.4
       group.add(createPipeRun([
         [28.34, 32.6, 4.25],
-        [28.34, 32.6, zB_vertG2]
-      ], R2, greenPipeMat, false));
-      group.add(createPipeRun([
-        [28.34, 33.3, zB_vertG2],
+        [28.34, 32.6, 0.3],
+        [28.34, Y_3RD_FLOOR, 0.3],
+        [28.34, Y_3RD_FLOOR, zB_vertG2],
         [28.34, 11.4, zB_vertG2]
       ], R2, greenPipeMat, true, 'Z'));
 
       // 2" Horizontal Distribution Header at Y = 11.4 (just below 1st floor slab band):
-      // From X = 33.9 (just left of main white stack) across to X = 5.4 (right of small vent window)
-      // With bridge around white stack at X = 32.7
-      const zB_bridge = zB_vert4 - R2 - 0.04;
+      // Runs straight from X = 33.9 to X = 5.4 at zB_vertG2, passing cleanly behind the 4" white stack at X = 32.7 (same as blue box)
       group.add(createPipeRun([
         [33.9, 11.4, zB_vertG2],
-        [33.2, 11.4, zB_vertG2],
-        [33.0, 11.4, zB_bridge],
-        [32.4, 11.4, zB_bridge],
-        [32.2, 11.4, zB_vertG2],
         [5.4, 11.4, zB_vertG2]
       ], R2, greenPipeMat, false));
 
@@ -3737,17 +3730,45 @@
         [5.4, 4.0, zB_vertG1]
       ], R1, greenPipeMat, false));
 
-      // Right vertical 1" green riser at X = 9.8 (centered on 2nd floor small window), from Y = 33.3 down to header Y = 11.4
+      // Right vertical 1" green riser at X = 9.8 (centered on 2nd floor small window), from 2nd floor roof Y = 32.0 down to header Y = 11.4
       group.add(createPipeRun([
-        [9.8, 33.3, zB_vertG1],
+        [9.8, Y_3RD_FLOOR, zB_vertG1],
         [9.8, 11.4, zB_vertG1]
       ], R1, greenPipeMat, true, 'Z'));
 
-      // Left vertical 1" green riser at X = 45.6 (just left of bedroom windows), from Y = 33.3 down to 2nd floor sill Y = 24.3
+      // Left vertical 1" green riser at X = 45.6 (just left of bedroom windows), from 2nd floor roof Y = 32.0 down to 2nd floor sill Y = 24.3
       group.add(createPipeRun([
-        [45.6, 33.3, zB_vertG1],
+        [45.6, Y_3RD_FLOOR, zB_vertG1],
         [45.6, 24.3, zB_vertG1]
       ], R1, greenPipeMat, true, 'Z'));
+
+      // 5. COMPLETE VIEW 3RD-FLOOR TOP EXTENSIONS (+1 floor: up to 3rd floor roof / parapet)
+      const Y_COMPLETE_3RD_ROOF = 42.0;   // 3rd floor roof slab level
+      const Y_COMPLETE_ROOF = 44.85;      // 3rd floor roof parapet top
+      const completeExtGroup = new THREE.Group();
+      completeExtGroup.name = 'exteriorPipesCompleteExtensions';
+      completeExtGroup.visible = false;
+
+      // South facade Complete extensions
+      completeExtGroup.add(createPipeRun([[xS_vert4, Y_ROOF, 6.9], [xS_vert4, Y_COMPLETE_ROOF, 6.9]], R4, whitePipeMat, true, 'X'));
+      completeExtGroup.add(createPipeRun([[xS_vertG, Y_3RD_FLOOR, 7.6], [xS_vertG, Y_COMPLETE_3RD_ROOF, 7.6]], R1, greenPipeMat, true, 'X'));
+      completeExtGroup.add(createPipeRun([[xS_vert4, Y_ROOF, 29.35], [xS_vert4, Y_COMPLETE_ROOF, 29.35]], R4, whitePipeMat, true, 'X'));
+      completeExtGroup.add(createPipeRun([[xS_vertG, Y_3RD_FLOOR, 28.75], [xS_vertG, Y_COMPLETE_3RD_ROOF, 28.75]], R1, greenPipeMat, true, 'X'));
+
+      // North facade Complete extensions
+      completeExtGroup.add(createPipeRun([[xN_vert4, Y_ROOF, 29.0], [xN_vert4, Y_COMPLETE_ROOF, 29.0]], R4, whitePipeMat, true, 'X'));
+      completeExtGroup.add(createPipeRun([[xN_vertG, Y_3RD_FLOOR, 28.2], [xN_vertG, Y_COMPLETE_3RD_ROOF, 28.2]], R1, greenPipeMat, true, 'X'));
+      completeExtGroup.add(createPipeRun([[xN_vert4, Y_ROOF, 9.6], [xN_vert4, Y_COMPLETE_ROOF, 9.6]], R4, whitePipeMat, true, 'X'));
+      completeExtGroup.add(createPipeRun([[xN_vertG, Y_3RD_FLOOR, 10.3], [xN_vertG, Y_COMPLETE_3RD_ROOF, 10.3]], R1, greenPipeMat, true, 'X'));
+
+      // Back facade Complete extensions
+      completeExtGroup.add(createPipeRun([[32.7, 31.6, zB_vert4], [32.7, 41.6, zB_vert4]], R4, whitePipeMat, true, 'Z'));
+      completeExtGroup.add(createPipeRun([[45.6, Y_3RD_FLOOR, zB_vertG1], [45.6, Y_COMPLETE_3RD_ROOF, zB_vertG1]], R1, greenPipeMat, true, 'Z'));
+      completeExtGroup.add(createPipeRun([[28.34, Y_3RD_FLOOR, zB_vertG2], [28.34, Y_COMPLETE_3RD_ROOF, zB_vertG2]], R2, greenPipeMat, true, 'Z'));
+      completeExtGroup.add(createPipeRun([[9.8, Y_3RD_FLOOR, zB_vertG1], [9.8, Y_COMPLETE_3RD_ROOF, zB_vertG1]], R1, greenPipeMat, true, 'Z'));
+
+      group.add(completeExtGroup);
+      window.exteriorPipesCompleteGroup = completeExtGroup;
 
       return group;
     }
@@ -4442,11 +4463,13 @@
         if (currentViewMode === 'current') {
           thirdFloorCurrentGroup.visible = true;
           thirdFloorCompleteGroup.visible = false;
+          if (window.exteriorPipesCompleteGroup) window.exteriorPipesCompleteGroup.visible = false;
           btnViewCurrent.classList.add('active');
           btnViewComplete.classList.remove('active');
         } else {
           thirdFloorCurrentGroup.visible = false;
           thirdFloorCompleteGroup.visible = true;
+          if (window.exteriorPipesCompleteGroup) window.exteriorPipesCompleteGroup.visible = true;
           btnViewCurrent.classList.remove('active');
           btnViewComplete.classList.add('active');
         }
@@ -4631,11 +4654,13 @@
         if (currentViewMode === 'current') {
           thirdFloorCurrentGroup.visible = true;
           thirdFloorCompleteGroup.visible = false;
+          if (window.exteriorPipesCompleteGroup) window.exteriorPipesCompleteGroup.visible = false;
           btnViewCurrent.classList.add('active');
           btnViewComplete.classList.remove('active');
         } else {
           thirdFloorCurrentGroup.visible = false;
           thirdFloorCompleteGroup.visible = true;
+          if (window.exteriorPipesCompleteGroup) window.exteriorPipesCompleteGroup.visible = true;
           btnViewCurrent.classList.remove('active');
           btnViewComplete.classList.add('active');
         }
