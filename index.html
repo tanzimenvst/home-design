@@ -2114,7 +2114,7 @@
       const diningGroup = new THREE.Group();
       diningGroup.name = 'diningTableSet';
       const dtCX = 35.6, dtCZ = 5.4;
-      const dtLen = 5.4, dtWid = 3.0, dtH = 2.48;
+      const dtLen = 7.2, dtWid = 4.0, dtH = 2.48;
       const dtFrameMat = new THREE.MeshStandardMaterial({ color: '#2b241f', roughness: 0.42, metalness: 0.35 });
       const dtGlassMat = new THREE.MeshPhysicalMaterial({
         color: '#cce6ec',
@@ -2188,14 +2188,75 @@
       }
 
       // 2 chairs on North (-Z) side, 2 on South (+Z) side, 1 on West (-X) end, 1 on East (+X) end
-      addDiningChair(dtCX - 1.25, dtCZ - dtWid / 2 - 0.55, 0);
-      addDiningChair(dtCX + 1.25, dtCZ - dtWid / 2 - 0.55, 0);
-      addDiningChair(dtCX - 1.25, dtCZ + dtWid / 2 + 0.55, Math.PI);
-      addDiningChair(dtCX + 1.25, dtCZ + dtWid / 2 + 0.55, Math.PI);
+      addDiningChair(dtCX - 1.70, dtCZ - dtWid / 2 - 0.55, 0);
+      addDiningChair(dtCX + 1.70, dtCZ - dtWid / 2 - 0.55, 0);
+      addDiningChair(dtCX - 1.70, dtCZ + dtWid / 2 + 0.55, Math.PI);
+      addDiningChair(dtCX + 1.70, dtCZ + dtWid / 2 + 0.55, Math.PI);
       addDiningChair(dtCX - dtLen / 2 - 0.55, dtCZ, Math.PI / 2);
       addDiningChair(dtCX + dtLen / 2 + 0.55, dtCZ, -Math.PI / 2);
 
       furnitureGroup.add(diningGroup);
+
+      // 5. 7-FT FRIDGE / REFRIGERATOR (2 doors up-down) & 4-FT DEEP-FRIDGE (top-door) in bottom corner
+      const fridgeGroup = new THREE.Group();
+      fridgeGroup.name = 'fridgeAndDeepFridge';
+      const fridgeBodyMat = new THREE.MeshStandardMaterial({ color: '#d8dde2', roughness: 0.28, metalness: 0.55 });
+      const fridgeDoorMat = new THREE.MeshStandardMaterial({ color: '#c5ccd3', roughness: 0.24, metalness: 0.65 });
+      const fridgeHandleMat = new THREE.MeshStandardMaterial({ color: '#8f969e', roughness: 0.20, metalness: 0.88 });
+      const deepFridgeMat = new THREE.MeshStandardMaterial({ color: '#f3f4f6', roughness: 0.30, metalness: 0.15 });
+
+      // 5a. Fridge (F): 7 ft height, 2 doors up-down, tucked in corner (X: 42.26, Z: 24.63), facing -X
+      const fW = 2.65, fD = 2.45, fH = 7.0;
+      const fCX = 42.26 - fD / 2 - 0.04;
+      const fCZ = 24.63 - fW / 2 - 0.06;
+
+      const fBody = new THREE.Mesh(new THREE.BoxGeometry(fD - 0.10, fH, fW), fridgeBodyMat);
+      fBody.position.set(fCX + 0.05, fH / 2, fCZ);
+      fridgeGroup.add(fBody);
+
+      // Upper door (Y = 4.62 .. 6.94)
+      const fTopDoor = new THREE.Mesh(new THREE.BoxGeometry(0.10, 2.32, fW - 0.06), fridgeDoorMat);
+      fTopDoor.position.set(fCX - fD / 2 + 0.05, 4.62 + 2.32 / 2, fCZ);
+      fridgeGroup.add(fTopDoor);
+
+      // Lower door (Y = 0.14 .. 4.54)
+      const fBotDoor = new THREE.Mesh(new THREE.BoxGeometry(0.10, 4.40, fW - 0.06), fridgeDoorMat);
+      fBotDoor.position.set(fCX - fD / 2 + 0.05, 0.14 + 4.40 / 2, fCZ);
+      fridgeGroup.add(fBotDoor);
+
+      // Vertical handles on both up-down doors
+      const fTopHnd = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.35, 0.06), fridgeHandleMat);
+      fTopHnd.position.set(fCX - fD / 2 - 0.03, 5.65, fCZ - fW / 2 + 0.24);
+      fridgeGroup.add(fTopHnd);
+
+      const fBotHnd = new THREE.Mesh(new THREE.BoxGeometry(0.06, 2.10, 0.06), fridgeHandleMat);
+      fBotHnd.position.set(fCX - fD / 2 - 0.03, 3.15, fCZ - fW / 2 + 0.24);
+      fridgeGroup.add(fBotHnd);
+
+      // 5b. Deep-Fridge (D): 4 ft height, top-door chest freezer beside Fridge (north of F), facing -X
+      const dW = 3.10, dD = 2.15, dH = 4.0;
+      const dCX = 42.26 - dD / 2 - 0.04;
+      const dCZ = (fCZ - fW / 2) - 0.15 - dW / 2;
+
+      const dBody = new THREE.Mesh(new THREE.BoxGeometry(dD, dH - 0.22, dW), deepFridgeMat);
+      dBody.position.set(dCX, (dH - 0.22) / 2, dCZ);
+      fridgeGroup.add(dBody);
+
+      // Top hinged door/lid (Y = 3.78 .. 4.00)
+      const dLid = new THREE.Mesh(new THREE.BoxGeometry(dD + 0.04, 0.20, dW + 0.04), new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.24, metalness: 0.18 }));
+      dLid.position.set(dCX - 0.01, dH - 0.10, dCZ);
+      fridgeGroup.add(dLid);
+
+      // Lid front chrome handle & bottom vent grille on -X face
+      const dLidHnd = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.08, 0.90), fridgeHandleMat);
+      dLidHnd.position.set(dCX - dD / 2 - 0.04, dH - 0.11, dCZ);
+      fridgeGroup.add(dLidHnd);
+
+      const dVent = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.35, 0.95), new THREE.MeshStandardMaterial({ color: '#333840', roughness: 0.6 }));
+      dVent.position.set(dCX - dD / 2 - 0.01, 0.32, dCZ);
+      fridgeGroup.add(dVent);
+
+      furnitureGroup.add(fridgeGroup);
     })();
 
     // =========================================================================
