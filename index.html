@@ -2253,7 +2253,7 @@
 
       furnitureGroup.add(fridgeGroup);
 
-      // 6. L-SHAPED SOFA SET & COFFEE TABLE (Left side of dining/partition, matching directed alignment)
+      // 6. SEPARATE SOFA SETS, RESIZED FRONT TABLE (T), & CORNER T-TABLE WITH FLOWER VASE (V)
       const sofaGroup = new THREE.Group();
       sofaGroup.name = 'livingSofaSet';
       const sofaFabricMat = new THREE.MeshStandardMaterial({ color: '#6b7578', roughness: 0.85 });
@@ -2262,48 +2262,29 @@
       const sofaPillowMat2 = new THREE.MeshStandardMaterial({ color: '#d8d2c5', roughness: 0.78 });
       const sofaBaseMat = new THREE.MeshStandardMaterial({ color: '#3b2d23', roughness: 0.50 });
 
-      // Back-wall section: X: 16.0 .. 28.20 (12.20 ft long), Z: 1.80 .. 4.55 (2.75 ft deep), facing +Z
-      const s1X0 = 16.0, s1X1 = 28.20, s1Z0 = 1.80, s1Z1 = 4.55;
+      // 6a. Separate Back-Wall Sofa (S1): X: 15.50 .. 22.70 (7.20 ft long, between store wall & pier), Z: 0.65 .. 3.40, facing +Z
+      const s1X0 = 15.50, s1X1 = 22.70, s1Z0 = 0.65, s1Z1 = 3.40;
       const s1W = s1X1 - s1X0, s1D = s1Z1 - s1Z0;
       const s1CX = (s1X0 + s1X1) / 2, s1CZ = (s1Z0 + s1Z1) / 2;
 
-      // Return section along glass partition: X: 25.45 .. 28.20 (2.75 ft deep), Z: 4.55 .. 8.35 (3.80 ft long), facing -X toward TV
-      const s2X0 = 25.45, s2X1 = 28.20, s2Z0 = 4.55, s2Z1 = 8.35;
-      const s2D = s2X1 - s2X0, s2W = s2Z1 - s2Z0;
-      const s2CX = (s2X0 + s2X1) / 2, s2CZ = (s2Z0 + s2Z1) / 2;
-
-      // Seat bases & legs
       const base1 = new THREE.Mesh(new THREE.BoxGeometry(s1W, 0.70, s1D), sofaBaseMat);
       base1.position.set(s1CX, 0.55, s1CZ);
       sofaGroup.add(base1);
 
-      const base2 = new THREE.Mesh(new THREE.BoxGeometry(s2D, 0.70, s2W), sofaBaseMat);
-      base2.position.set(s2CX, 0.55, s2CZ);
-      sofaGroup.add(base2);
-
-      // Backrests (Back-wall section on -Z; Partition section on +X)
       const back1 = new THREE.Mesh(new THREE.BoxGeometry(s1W, 1.85, 0.55), sofaFabricMat);
       back1.position.set(s1CX, 1.825, s1Z0 + 0.275);
       sofaGroup.add(back1);
 
-      const back2 = new THREE.Mesh(new THREE.BoxGeometry(0.55, 1.85, s2W + 0.55), sofaFabricMat);
-      back2.position.set(s2X1 - 0.275, 1.825, s2CZ - 0.275);
-      sofaGroup.add(back2);
+      for (const sx of [s1X0 + 0.275, s1X1 - 0.275]) {
+        const arm = new THREE.Mesh(new THREE.BoxGeometry(0.55, 1.35, s1D), sofaFabricMat);
+        arm.position.set(sx, 1.55, s1CZ);
+        sofaGroup.add(arm);
+      }
 
-      // Armrests (West end of s1, South end of s2)
-      const arm1 = new THREE.Mesh(new THREE.BoxGeometry(0.55, 1.35, s1D), sofaFabricMat);
-      arm1.position.set(s1X0 + 0.275, 1.55, s1CZ);
-      sofaGroup.add(arm1);
-
-      const arm2 = new THREE.Mesh(new THREE.BoxGeometry(s2D, 1.35, 0.55), sofaFabricMat);
-      arm2.position.set(s2CX, 1.55, s2Z1 - 0.275);
-      sofaGroup.add(arm2);
-
-      // Seat cushions on s1 (4 cushions)
-      const c1Span = s1W - 0.65;
-      const c1W = c1Span / 4;
-      for (let i = 0; i < 4; i++) {
-        const cx = s1X0 + 0.58 + (i + 0.5) * c1W;
+      const c1Span = s1W - 1.15;
+      const c1W = c1Span / 3;
+      for (let i = 0; i < 3; i++) {
+        const cx = s1X0 + 0.575 + (i + 0.5) * c1W;
         const sc = new THREE.Mesh(new THREE.BoxGeometry(c1W - 0.06, 0.45, s1D - 0.62), sofaCushionMat);
         sc.position.set(cx, 1.12, s1CZ + 0.26);
         sofaGroup.add(sc);
@@ -2313,11 +2294,29 @@
         sofaGroup.add(bc);
       }
 
-      // Seat cushions on s2 (2 cushions)
-      const c2Span = s2W - 0.60;
+      // 6b. Separate Partition-Side Sofa (S2): X: 25.45 .. 28.20, Z: 3.65 .. 8.35 (4.70 ft long), facing -X toward TV
+      const s2X0 = 25.45, s2X1 = 28.20, s2Z0 = 3.65, s2Z1 = 8.35;
+      const s2D = s2X1 - s2X0, s2W = s2Z1 - s2Z0;
+      const s2CX = (s2X0 + s2X1) / 2, s2CZ = (s2Z0 + s2Z1) / 2;
+
+      const base2 = new THREE.Mesh(new THREE.BoxGeometry(s2D, 0.70, s2W), sofaBaseMat);
+      base2.position.set(s2CX, 0.55, s2CZ);
+      sofaGroup.add(base2);
+
+      const back2 = new THREE.Mesh(new THREE.BoxGeometry(0.55, 1.85, s2W), sofaFabricMat);
+      back2.position.set(s2X1 - 0.275, 1.825, s2CZ);
+      sofaGroup.add(back2);
+
+      for (const sz of [s2Z0 + 0.275, s2Z1 - 0.275]) {
+        const arm = new THREE.Mesh(new THREE.BoxGeometry(s2D, 1.35, 0.55), sofaFabricMat);
+        arm.position.set(s2CX, 1.55, sz);
+        sofaGroup.add(arm);
+      }
+
+      const c2Span = s2W - 1.15;
       const c2W = c2Span / 2;
       for (let i = 0; i < 2; i++) {
-        const cz = s2Z0 + (i + 0.5) * c2W;
+        const cz = s2Z0 + 0.575 + (i + 0.5) * c2W;
         const sc = new THREE.Mesh(new THREE.BoxGeometry(s2D - 0.62, 0.45, c2W - 0.06), sofaCushionMat);
         sc.position.set(s2CX - 0.26, 1.12, cz);
         sofaGroup.add(sc);
@@ -2327,27 +2326,68 @@
         sofaGroup.add(bc);
       }
 
-      // Throw pillows
+      // Throw pillows on both separate sofas
       for (const [px, pz, rotY, pmat] of [
         [s1X0 + 1.1, s1Z0 + 1.05, 0.25, sofaPillowMat1],
-        [s2X1 - 1.15, s1Z0 + 1.15, -0.5, sofaPillowMat2],
+        [s1X1 - 1.1, s1Z0 + 1.05, -0.25, sofaPillowMat2],
+        [s2X1 - 1.05, s2Z0 + 1.1, -0.2, sofaPillowMat2],
         [s2X1 - 1.05, s2Z1 - 1.1, 0.2, sofaPillowMat1]
       ]) {
-        const pil = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.85, 0.30), pmat);
-        pil.position.set(px, 1.75, pz);
+        const pil = new THREE.Mesh(new THREE.BoxGeometry(0.90, 0.80, 0.28), pmat);
+        pil.position.set(px, 1.72, pz);
         pil.rotation.y = rotY;
         sofaGroup.add(pil);
       }
 
-      // Living room coffee table in front of sofa facing TV
-      const ctCX = 20.8, ctCZ = 7.2;
-      const ctTop = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.12, 2.0), sofaBaseMat);
-      ctTop.position.set(ctCX, 1.38, ctCZ);
+      // 6c. Corner T-Table (V) in pocket between pier (24.01), back wall (0.51), partition (28.34), & S2 (3.65)
+      const ttCX = 26.25, ttCZ = 2.00, ttW = 2.50, ttD = 2.40, ttH = 1.90;
+      const ttTop = new THREE.Mesh(new THREE.BoxGeometry(ttW, 0.10, ttD), sofaBaseMat);
+      ttTop.position.set(ttCX, ttH - 0.05, ttCZ);
+      sofaGroup.add(ttTop);
+
+      const ttShelf = new THREE.Mesh(new THREE.BoxGeometry(ttW - 0.28, 0.07, ttD - 0.28), woodLightMat);
+      ttShelf.position.set(ttCX, 0.55, ttCZ);
+      sofaGroup.add(ttShelf);
+
+      for (const sx of [-(ttW / 2 - 0.14), ttW / 2 - 0.14]) {
+        for (const sz of [-(ttD / 2 - 0.14), ttD / 2 - 0.14]) {
+          const ttLeg = new THREE.Mesh(new THREE.BoxGeometry(0.12, ttH - 0.10, 0.12), sofaBaseMat);
+          ttLeg.position.set(ttCX + sx, (ttH - 0.10) / 2, ttCZ + sz);
+          sofaGroup.add(ttLeg);
+        }
+      }
+
+      // Flower Vase on top of Corner T-Table
+      const fvBase = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.30, 0.85, 18), ceramicBlueMat);
+      fvBase.position.set(ttCX, ttH + 0.425, ttCZ);
+      sofaGroup.add(fvBase);
+      const fvNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.22, 0.25, 18), ceramicWhiteMat);
+      fvNeck.position.set(ttCX, ttH + 0.95, ttCZ);
+      sofaGroup.add(fvNeck);
+      for (const [fx, fy, fz, fmat] of [
+        [0, 1.35, 0, ceramicCoralMat],
+        [-0.18, 1.25, 0.12, brassMat],
+        [0.18, 1.28, -0.10, ceramicWhiteMat],
+        [0.05, 1.20, 0.18, leafMat],
+        [-0.14, 1.22, -0.14, leafMat]
+      ]) {
+        const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.40, 8), leafMat);
+        stem.position.set(ttCX + fx * 0.5, ttH + 1.08, ttCZ + fz * 0.5);
+        sofaGroup.add(stem);
+        const flw = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 10), fmat);
+        flw.position.set(ttCX + fx, ttH + fy, ttCZ + fz);
+        sofaGroup.add(flw);
+      }
+
+      // 6d. Resized Front Coffee Table (T) in front of back-wall sofa
+      const ctCX = 19.1, ctCZ = 5.2, ctW = 4.8, ctD = 2.1, ctH = 1.38;
+      const ctTop = new THREE.Mesh(new THREE.BoxGeometry(ctW, 0.12, ctD), sofaBaseMat);
+      ctTop.position.set(ctCX, ctH, ctCZ);
       sofaGroup.add(ctTop);
-      for (const sx of [-1.45, 1.45]) {
-        for (const sz of [-0.78, 0.78]) {
-          const ctLeg = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.32, 0.12), sofaBaseMat);
-          ctLeg.position.set(ctCX + sx, 0.66, ctCZ + sz);
+      for (const sx of [-(ctW / 2 - 0.25), ctW / 2 - 0.25]) {
+        for (const sz of [-(ctD / 2 - 0.22), ctD / 2 - 0.22]) {
+          const ctLeg = new THREE.Mesh(new THREE.BoxGeometry(0.12, ctH - 0.06, 0.12), sofaBaseMat);
+          ctLeg.position.set(ctCX + sx, (ctH - 0.06) / 2, ctCZ + sz);
           sofaGroup.add(ctLeg);
         }
       }
