@@ -2649,47 +2649,75 @@
         r2FurnGroup.add(swBtn);
       }
 
-      // Flat front doors on right section (X: 15.80 .. chamfX)
+      // Flat front doors on right section: 2 double doors (lower & upper) + middle drawer beside gap
       const rfW = chamfX - dressX1;
       const dw = (rfW - 0.14) / 2;
-      // Door 0 (left): full height
-      const rDoor0X = dressX1 + 0.05 + dw / 2;
-      const rDoor0 = new THREE.Mesh(new THREE.BoxGeometry(dw, almH - 0.30, 0.05), cabDoorMat);
-      rDoor0.position.set(rDoor0X, almH / 2, almZ1 + 0.025);
-      r2FurnGroup.add(rDoor0);
-      const rHnd0 = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.45, 0.04), handleMat);
-      rHnd0.position.set(rDoor0X + dw / 2 - 0.10, 4.0, almZ1 + 0.06);
-      r2FurnGroup.add(rHnd0);
-
-      // Door 1 (right): notched at X >= swX0, Y in [swY0, swY1]
-      const d1X0 = dressX1 + 0.05 + dw + 0.04;
-      const d1X1 = d1X0 + dw;
-      const d1Shape = new THREE.Shape();
-      d1Shape.moveTo(d1X0, 0.15);
-      d1Shape.lineTo(d1X1, 0.15);
-      d1Shape.lineTo(d1X1, swY0);
-      d1Shape.lineTo(swX0, swY0);
-      d1Shape.lineTo(swX0, swY1);
-      d1Shape.lineTo(d1X1, swY1);
-      d1Shape.lineTo(d1X1, almH - 0.15);
-      d1Shape.lineTo(d1X0, almH - 0.15);
-      d1Shape.closePath();
-      const d1Geo = new THREE.ExtrudeGeometry(d1Shape, { depth: 0.05, bevelEnabled: false });
-      const rDoor1 = new THREE.Mesh(d1Geo, cabDoorMat);
-      rDoor1.position.z = almZ1;
-      r2FurnGroup.add(rDoor1);
-      const rHnd1 = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.45, 0.04), handleMat);
-      rHnd1.position.set(d1X0 + 0.10, 4.0, almZ1 + 0.06);
-      r2FurnGroup.add(rHnd1);
+      for (const [py0, py1] of [[0.15, swY0 - 0.04], [swY1 + 0.04, almH - 0.15]]) {
+        const ph = py1 - py0;
+        const pcy = (py0 + py1) / 2;
+        for (let i = 0; i < 2; i++) {
+          const dx = dressX1 + 0.05 + dw / 2 + i * (dw + 0.04);
+          const door = new THREE.Mesh(new THREE.BoxGeometry(dw, ph, 0.05), cabDoorMat);
+          door.position.set(dx, pcy, almZ1 + 0.025);
+          r2FurnGroup.add(door);
+          const hnd = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.42, 0.04), handleMat);
+          hnd.position.set(dx + (i === 0 ? dw / 2 - 0.10 : -dw / 2 + 0.10), pcy, almZ1 + 0.06);
+          r2FurnGroup.add(hnd);
+        }
+      }
+      // Middle drawer beside switchboard gap (X: 15.80 .. swX0, Y: swY0 .. swY1)
+      const midDrwW = swX0 - dressX1 - 0.10;
+      const midDrwCX = dressX1 + 0.05 + midDrwW / 2;
+      const midDrwCY = (swY0 + swY1) / 2;
+      const midDrw = new THREE.Mesh(new THREE.BoxGeometry(midDrwW, swY1 - swY0 - 0.08, 0.05), cabDoorMat);
+      midDrw.position.set(midDrwCX, midDrwCY, almZ1 + 0.025);
+      r2FurnGroup.add(midDrw);
+      const midDrwHnd = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.04, 0.04), handleMat);
+      midDrwHnd.position.set(midDrwCX, midDrwCY, almZ1 + 0.06);
+      r2FurnGroup.add(midDrwHnd);
 
       // Angled front-right panel on the chamfered face, split around the switchboard gap
       const chamfLen = Math.hypot(almX1 - chamfX, almZ1 - chamfZ);
-      for (const [py0, py1] of [[0.15, swY0 - 0.05], [swY1 + 0.05, almH - 0.15]]) {
+      for (const [py0, py1] of [[0.15, swY0 - 0.04], [swY1 + 0.04, almH - 0.15]]) {
         const chamfPanel = new THREE.Mesh(new THREE.BoxGeometry(chamfLen - 0.14, py1 - py0, 0.05), cabDoorMat);
         chamfPanel.position.set((chamfX + almX1) / 2 + 0.02, (py0 + py1) / 2, (almZ1 + chamfZ) / 2 + 0.02);
         chamfPanel.rotation.y = Math.PI / 4;
         r2FurnGroup.add(chamfPanel);
       }
+
+      // Top loft cabinets filling from almH (8.50 ft) up to roof (10.0 ft)
+      const loftH = wallHeight - almH;
+      const loftCY = almH + loftH / 2;
+      const loftShape = new THREE.Shape();
+      loftShape.moveTo(almX0, -almZ0);
+      loftShape.lineTo(almX1, -almZ0);
+      loftShape.lineTo(almX1, -chamfZ);
+      loftShape.lineTo(chamfX, -almZ1);
+      loftShape.lineTo(almX0, -almZ1);
+      loftShape.closePath();
+      const loftGeo = new THREE.ExtrudeGeometry(loftShape, { depth: loftH, bevelEnabled: false });
+      loftGeo.rotateX(-Math.PI / 2);
+      const loftBody = new THREE.Mesh(loftGeo, woodDarkMat);
+      loftBody.position.y = almH;
+      r2FurnGroup.add(loftBody);
+
+      // Loft cabinet doors across Left, Center, Right flat sections + chamfered face
+      for (const [sx0, sx1] of [[almX0, dressX0], [dressX0, dressX1], [dressX1, chamfX]]) {
+        const ldw = (sx1 - sx0 - 0.14) / 2;
+        for (let i = 0; i < 2; i++) {
+          const ldx = sx0 + 0.05 + ldw / 2 + i * (ldw + 0.04);
+          const lDoor = new THREE.Mesh(new THREE.BoxGeometry(ldw, loftH - 0.16, 0.05), cabDoorMat);
+          lDoor.position.set(ldx, loftCY, almZ1 + 0.025);
+          r2FurnGroup.add(lDoor);
+          const lHnd = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.28, 0.04), handleMat);
+          lHnd.position.set(ldx + (i === 0 ? ldw / 2 - 0.10 : -ldw / 2 + 0.10), loftCY - 0.20, almZ1 + 0.06);
+          r2FurnGroup.add(lHnd);
+        }
+      }
+      const loftChamfPanel = new THREE.Mesh(new THREE.BoxGeometry(chamfLen - 0.14, loftH - 0.16, 0.05), cabDoorMat);
+      loftChamfPanel.position.set((chamfX + almX1) / 2 + 0.02, loftCY, (almZ1 + chamfZ) / 2 + 0.02);
+      loftChamfPanel.rotation.y = Math.PI / 4;
+      r2FurnGroup.add(loftChamfPanel);
 
       furnitureGroup.add(r2FurnGroup);
     })();
