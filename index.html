@@ -359,7 +359,7 @@
 
     // Doors exact spans and hinges matching the layout openings
     const doorSpecs = [
-      { a: [588, 210], b: [588, 293], hinge: 'a', swing: -1, flipFront: true },                               // Room 6'7" X 3' (#39)
+      { a: [588, 210], b: [588, 293], hinge: 'a', swing: -1, flipFront: true, closed: true, openAngle: 0 }, // Room 6'7" X 3' (#39 - Store Room closed)
       { a: [265, 536], b: [349, 536], hinge: 'b', swing: -1, flipFront: true, isBalconyDoor: true },               // Balcony-12 from Bedroom-3 (#37)
       { a: [399, 536], b: [482, 536], hinge: 'a', swing: 1, openAngle: Math.PI / 4 },           // Bathroom-7 door (#35, 45 deg)
       { a: [588, 542], b: [588, 652], hinge: 'a', swing: -1, flipFront: true },  // Bedroom-3 main (#40)
@@ -511,40 +511,35 @@
       const totalLen = zSouth - zNorth;                // 7.920 ft
       const totalH = 10.0;                             // 10 ft full wall height
 
-      // Textures: High-resolution seamless vertical fluted glass (diffuse, normal, roughness)
-      const texLoader = new THREE.TextureLoader();
-      const flutedDiffuse = texLoader.load('./fluted_glass_diffuse.jpg', t => {
-        t.colorSpace = THREE.SRGBColorSpace;
-        t.wrapS = THREE.RepeatWrapping;
-        t.wrapT = THREE.RepeatWrapping;
-        t.repeat.set(16, 1); // 16 flutes per unit width
-        flutedGlassMat.needsUpdate = true;
-      });
-      const flutedNormal = texLoader.load('./fluted_glass_normal.png', t => {
-        t.wrapS = THREE.RepeatWrapping;
-        t.wrapT = THREE.RepeatWrapping;
-        t.repeat.set(16, 1);
-        flutedGlassMat.needsUpdate = true;
-      });
-      const flutedRoughness = texLoader.load('./fluted_glass_roughness.jpg', t => {
-        t.wrapS = THREE.RepeatWrapping;
-        t.wrapT = THREE.RepeatWrapping;
-        t.repeat.set(16, 1);
-        flutedGlassMat.needsUpdate = true;
-      });
+      // Procedural embossed/fluted privacy glass texture (non-see-through, zero 404s)
+      const fluteCanvas = document.createElement('canvas');
+      fluteCanvas.width = 256; fluteCanvas.height = 64;
+      const fctx = fluteCanvas.getContext('2d');
+      for (let x = 0; x < 256; x++) {
+        const wave = 0.5 + 0.5 * Math.sin((x / 256) * Math.PI * 2 * 8);
+        const r = Math.round(188 + wave * 34);
+        const g = Math.round(202 + wave * 32);
+        const b = Math.round(204 + wave * 30);
+        fctx.fillStyle = `rgb(${r},${g},${b})`;
+        fctx.fillRect(x, 0, 1, 64);
+      }
+      const flutedEmbossedTex = new THREE.CanvasTexture(fluteCanvas);
+      flutedEmbossedTex.colorSpace = THREE.SRGBColorSpace;
+      flutedEmbossedTex.wrapS = THREE.RepeatWrapping;
+      flutedEmbossedTex.wrapT = THREE.RepeatWrapping;
+      flutedEmbossedTex.repeat.set(3, 1);
 
-      // Authentic architectural fluted glass material matching the uploaded reference
+      // Opaque embossed privacy glass material (cannot see through from either side)
       const flutedGlassMat = new THREE.MeshStandardMaterial({
-        color: '#ffffff',
-        map: flutedDiffuse,
-        normalMap: flutedNormal,
-        normalScale: new THREE.Vector2(3.0, 3.0), // bold, crisp 3D vertical fluting relief
-        roughnessMap: flutedRoughness,
-        roughness: 0.25,
-        metalness: 0.12,
-        transparent: true,
-        opacity: 0.76, // frosted/obscure privacy fluted glass
-        depthWrite: false,
+        color: '#dbe6e8',
+        map: flutedEmbossedTex,
+        bumpMap: flutedEmbossedTex,
+        bumpScale: 0.08,
+        roughness: 0.34,
+        metalness: 0.14,
+        transparent: false,
+        opacity: 1.0,
+        depthWrite: true,
         side: THREE.DoubleSide
       });
 
@@ -2233,8 +2228,8 @@
       fBotHnd.position.set(fCX - fD / 2 - 0.03, 3.15, fCZ - fW / 2 + 0.24);
       fridgeGroup.add(fBotHnd);
 
-      // 5b. Deep-Fridge (D): 4 ft height, shorter length (2.55 ft), top-door chest freezer beside Fridge
-      const dW = 2.55, dD = 2.15, dH = 4.0;
+      // 5b. Deep-Fridge (D): 3 ft height, shorter length (2.55 ft), top-door chest freezer beside Fridge
+      const dW = 2.55, dD = 2.15, dH = 3.0;
       const dCX = 42.26 - dD / 2 - 0.04;
       const dCZ = (fCZ - fW / 2) - 0.15 - dW / 2;
 
@@ -2257,6 +2252,107 @@
       fridgeGroup.add(dVent);
 
       furnitureGroup.add(fridgeGroup);
+
+      // 6. L-SHAPED SOFA SET & COFFEE TABLE (Left side of dining/partition, matching directed alignment)
+      const sofaGroup = new THREE.Group();
+      sofaGroup.name = 'livingSofaSet';
+      const sofaFabricMat = new THREE.MeshStandardMaterial({ color: '#6b7578', roughness: 0.85 });
+      const sofaCushionMat = new THREE.MeshStandardMaterial({ color: '#7e888b', roughness: 0.82 });
+      const sofaPillowMat1 = new THREE.MeshStandardMaterial({ color: '#c98a5b', roughness: 0.78 });
+      const sofaPillowMat2 = new THREE.MeshStandardMaterial({ color: '#d8d2c5', roughness: 0.78 });
+      const sofaBaseMat = new THREE.MeshStandardMaterial({ color: '#3b2d23', roughness: 0.50 });
+
+      // Back-wall section: X: 16.0 .. 28.20 (12.20 ft long), Z: 1.80 .. 4.55 (2.75 ft deep), facing +Z
+      const s1X0 = 16.0, s1X1 = 28.20, s1Z0 = 1.80, s1Z1 = 4.55;
+      const s1W = s1X1 - s1X0, s1D = s1Z1 - s1Z0;
+      const s1CX = (s1X0 + s1X1) / 2, s1CZ = (s1Z0 + s1Z1) / 2;
+
+      // Return section along glass partition: X: 25.45 .. 28.20 (2.75 ft deep), Z: 4.55 .. 8.35 (3.80 ft long), facing -X toward TV
+      const s2X0 = 25.45, s2X1 = 28.20, s2Z0 = 4.55, s2Z1 = 8.35;
+      const s2D = s2X1 - s2X0, s2W = s2Z1 - s2Z0;
+      const s2CX = (s2X0 + s2X1) / 2, s2CZ = (s2Z0 + s2Z1) / 2;
+
+      // Seat bases & legs
+      const base1 = new THREE.Mesh(new THREE.BoxGeometry(s1W, 0.70, s1D), sofaBaseMat);
+      base1.position.set(s1CX, 0.55, s1CZ);
+      sofaGroup.add(base1);
+
+      const base2 = new THREE.Mesh(new THREE.BoxGeometry(s2D, 0.70, s2W), sofaBaseMat);
+      base2.position.set(s2CX, 0.55, s2CZ);
+      sofaGroup.add(base2);
+
+      // Backrests (Back-wall section on -Z; Partition section on +X)
+      const back1 = new THREE.Mesh(new THREE.BoxGeometry(s1W, 1.85, 0.55), sofaFabricMat);
+      back1.position.set(s1CX, 1.825, s1Z0 + 0.275);
+      sofaGroup.add(back1);
+
+      const back2 = new THREE.Mesh(new THREE.BoxGeometry(0.55, 1.85, s2W + 0.55), sofaFabricMat);
+      back2.position.set(s2X1 - 0.275, 1.825, s2CZ - 0.275);
+      sofaGroup.add(back2);
+
+      // Armrests (West end of s1, South end of s2)
+      const arm1 = new THREE.Mesh(new THREE.BoxGeometry(0.55, 1.35, s1D), sofaFabricMat);
+      arm1.position.set(s1X0 + 0.275, 1.55, s1CZ);
+      sofaGroup.add(arm1);
+
+      const arm2 = new THREE.Mesh(new THREE.BoxGeometry(s2D, 1.35, 0.55), sofaFabricMat);
+      arm2.position.set(s2CX, 1.55, s2Z1 - 0.275);
+      sofaGroup.add(arm2);
+
+      // Seat cushions on s1 (4 cushions)
+      const c1Span = s1W - 0.65;
+      const c1W = c1Span / 4;
+      for (let i = 0; i < 4; i++) {
+        const cx = s1X0 + 0.58 + (i + 0.5) * c1W;
+        const sc = new THREE.Mesh(new THREE.BoxGeometry(c1W - 0.06, 0.45, s1D - 0.62), sofaCushionMat);
+        sc.position.set(cx, 1.12, s1CZ + 0.26);
+        sofaGroup.add(sc);
+
+        const bc = new THREE.Mesh(new THREE.BoxGeometry(c1W - 0.08, 1.05, 0.42), sofaCushionMat);
+        bc.position.set(cx, 1.85, s1Z0 + 0.74);
+        sofaGroup.add(bc);
+      }
+
+      // Seat cushions on s2 (2 cushions)
+      const c2Span = s2W - 0.60;
+      const c2W = c2Span / 2;
+      for (let i = 0; i < 2; i++) {
+        const cz = s2Z0 + (i + 0.5) * c2W;
+        const sc = new THREE.Mesh(new THREE.BoxGeometry(s2D - 0.62, 0.45, c2W - 0.06), sofaCushionMat);
+        sc.position.set(s2CX - 0.26, 1.12, cz);
+        sofaGroup.add(sc);
+
+        const bc = new THREE.Mesh(new THREE.BoxGeometry(0.42, 1.05, c2W - 0.08), sofaCushionMat);
+        bc.position.set(s2X1 - 0.74, 1.85, cz);
+        sofaGroup.add(bc);
+      }
+
+      // Throw pillows
+      for (const [px, pz, rotY, pmat] of [
+        [s1X0 + 1.1, s1Z0 + 1.05, 0.25, sofaPillowMat1],
+        [s2X1 - 1.15, s1Z0 + 1.15, -0.5, sofaPillowMat2],
+        [s2X1 - 1.05, s2Z1 - 1.1, 0.2, sofaPillowMat1]
+      ]) {
+        const pil = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.85, 0.30), pmat);
+        pil.position.set(px, 1.75, pz);
+        pil.rotation.y = rotY;
+        sofaGroup.add(pil);
+      }
+
+      // Living room coffee table in front of sofa facing TV
+      const ctCX = 20.8, ctCZ = 7.2;
+      const ctTop = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.12, 2.0), sofaBaseMat);
+      ctTop.position.set(ctCX, 1.38, ctCZ);
+      sofaGroup.add(ctTop);
+      for (const sx of [-1.45, 1.45]) {
+        for (const sz of [-0.78, 0.78]) {
+          const ctLeg = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.32, 0.12), sofaBaseMat);
+          ctLeg.position.set(ctCX + sx, 0.66, ctCZ + sz);
+          sofaGroup.add(ctLeg);
+        }
+      }
+
+      furnitureGroup.add(sofaGroup);
     })();
 
     // =========================================================================
