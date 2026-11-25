@@ -2110,11 +2110,11 @@
 
       furnitureGroup.add(wmGroup);
 
-      // 4. 6-CHAIR GLASS-TOP DINING TABLE SET (Centered in dining area: X = 35.6, Z = 5.4)
+      // 4. 6-CHAIR GLASS-TOP DINING TABLE SET (Extended toward glass partition: X = 34.9, Z = 5.4)
       const diningGroup = new THREE.Group();
       diningGroup.name = 'diningTableSet';
-      const dtCX = 35.6, dtCZ = 5.4;
-      const dtLen = 7.2, dtWid = 4.0, dtH = 2.48;
+      const dtCX = 34.9, dtCZ = 5.4;
+      const dtLen = 8.6, dtWid = 4.0, dtH = 2.48;
       const dtFrameMat = new THREE.MeshStandardMaterial({ color: '#2b241f', roughness: 0.42, metalness: 0.35 });
       const dtGlassMat = new THREE.MeshPhysicalMaterial({
         color: '#cce6ec',
@@ -2188,10 +2188,10 @@
       }
 
       // 2 chairs on North (-Z) side, 2 on South (+Z) side, 1 on West (-X) end, 1 on East (+X) end
-      addDiningChair(dtCX - 1.70, dtCZ - dtWid / 2 - 0.55, 0);
-      addDiningChair(dtCX + 1.70, dtCZ - dtWid / 2 - 0.55, 0);
-      addDiningChair(dtCX - 1.70, dtCZ + dtWid / 2 + 0.55, Math.PI);
-      addDiningChair(dtCX + 1.70, dtCZ + dtWid / 2 + 0.55, Math.PI);
+      addDiningChair(dtCX - 2.15, dtCZ - dtWid / 2 - 0.55, 0);
+      addDiningChair(dtCX + 2.15, dtCZ - dtWid / 2 - 0.55, 0);
+      addDiningChair(dtCX - 2.15, dtCZ + dtWid / 2 + 0.55, Math.PI);
+      addDiningChair(dtCX + 2.15, dtCZ + dtWid / 2 + 0.55, Math.PI);
       addDiningChair(dtCX - dtLen / 2 - 0.55, dtCZ, Math.PI / 2);
       addDiningChair(dtCX + dtLen / 2 + 0.55, dtCZ, -Math.PI / 2);
 
@@ -2233,8 +2233,8 @@
       fBotHnd.position.set(fCX - fD / 2 - 0.03, 3.15, fCZ - fW / 2 + 0.24);
       fridgeGroup.add(fBotHnd);
 
-      // 5b. Deep-Fridge (D): 4 ft height, top-door chest freezer beside Fridge (north of F), facing -X
-      const dW = 3.10, dD = 2.15, dH = 4.0;
+      // 5b. Deep-Fridge (D): 4 ft height, shorter length (2.55 ft), top-door chest freezer beside Fridge
+      const dW = 2.55, dD = 2.15, dH = 4.0;
       const dCX = 42.26 - dD / 2 - 0.04;
       const dCZ = (fCZ - fW / 2) - 0.15 - dW / 2;
 
