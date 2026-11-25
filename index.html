@@ -1665,24 +1665,125 @@
       const showcaseGlassMat = new THREE.MeshPhysicalMaterial({
         color: '#d9edf7',
         transparent: true,
-        opacity: 0.32,
+        opacity: 0.30,
         roughness: 0.08,
         metalness: 0.05,
         depthWrite: false,
         side: THREE.DoubleSide
       });
-      const decorMat1 = new THREE.MeshStandardMaterial({ color: '#c46d53', roughness: 0.45 });
-      const decorMat2 = new THREE.MeshStandardMaterial({ color: '#507d79', roughness: 0.40 });
-      const decorMat3 = new THREE.MeshStandardMaterial({ color: '#e0c07a', roughness: 0.35, metalness: 0.35 });
+      const ceramicWhiteMat = new THREE.MeshStandardMaterial({ color: '#f5f4ef', roughness: 0.25, metalness: 0.05 });
+      const ceramicBlueMat = new THREE.MeshStandardMaterial({ color: '#5c8a99', roughness: 0.30, metalness: 0.05 });
+      const ceramicCoralMat = new THREE.MeshStandardMaterial({ color: '#c96f55', roughness: 0.35 });
+      const steelMat = new THREE.MeshStandardMaterial({ color: '#b8c0c8', roughness: 0.22, metalness: 0.85 });
+      const panMat = new THREE.MeshStandardMaterial({ color: '#24272b', roughness: 0.42, metalness: 0.55 });
+      const brassMat = new THREE.MeshStandardMaterial({ color: '#d4af5a', roughness: 0.28, metalness: 0.72 });
+      const leafMat = new THREE.MeshStandardMaterial({ color: '#2f7a3e', roughness: 0.65 });
+      const terracottaMat = new THREE.MeshStandardMaterial({ color: '#b55c3e', roughness: 0.72 });
 
-      // 1. WALL SHOWCASE (Image 1 position: back wall recess right of glass partition, X: 28.46..32.69, Z: 0.52..1.71, Y: 0..10.0)
+      // Helper builders for showcase belongings
+      function addPlateStack(parent, x, y, z, mat = ceramicWhiteMat) {
+        for (let p = 0; p < 4; p++) {
+          const pl = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.20, 0.03, 18), mat);
+          pl.position.set(x, y + 0.018 + p * 0.036, z);
+          parent.add(pl);
+        }
+      }
+      function addBowl(parent, x, y, z, mat = ceramicBlueMat) {
+        const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.11, 0.16, 16), mat);
+        bowl.position.set(x, y + 0.08, z);
+        parent.add(bowl);
+      }
+      function addMug(parent, x, y, z, mat = ceramicCoralMat) {
+        const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.08, 0.20, 14), mat);
+        cup.position.set(x, y + 0.10, z);
+        parent.add(cup);
+        const ear = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.11, 0.03), mat);
+        ear.position.set(x + 0.10, y + 0.10, z);
+        parent.add(ear);
+      }
+      function addJug(parent, x, y, z, mat = steelMat) {
+        const jug = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.16, 0.44, 16), mat);
+        jug.position.set(x, y + 0.22, z);
+        parent.add(jug);
+        const jHnd = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.24, 0.03), mat);
+        jHnd.position.set(x + 0.15, y + 0.24, z);
+        parent.add(jHnd);
+      }
+      function addSpoonSet(parent, x, y, z) {
+        const holder = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.09, 0.24, 14), ceramicWhiteMat);
+        holder.position.set(x, y + 0.12, z);
+        parent.add(holder);
+        for (let s = 0; s < 4; s++) {
+          const ang = (s - 1.5) * 0.16;
+          const sp = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.012, 0.36, 8), steelMat);
+          sp.position.set(x + (s - 1.5) * 0.035, y + 0.26, z);
+          sp.rotation.z = ang;
+          parent.add(sp);
+        }
+      }
+      function addPan(parent, x, y, z) {
+        const pan = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.21, 0.09, 18), panMat);
+        pan.position.set(x - 0.06, y + 0.045, z);
+        parent.add(pan);
+        const pHnd = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.03, 0.045), handleMat);
+        pHnd.position.set(x + 0.25, y + 0.06, z);
+        parent.add(pHnd);
+      }
+
+      // Helper builders for TV corner showpiece racks
+      function addPlantPot(parent, x, y, z) {
+        const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.10, 0.22, 14), terracottaMat);
+        pot.position.set(x, y + 0.11, z);
+        parent.add(pot);
+        for (const [ox, oy, oz, r] of [[0, 0.28, 0, 0.14], [-0.08, 0.25, 0.06, 0.10], [0.08, 0.26, -0.05, 0.11]]) {
+          const lf = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8), leafMat);
+          lf.position.set(x + ox, y + oy, z + oz);
+          parent.add(lf);
+        }
+      }
+      function addFlowerVase(parent, x, y, z) {
+        const vase = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.13, 0.36, 14), ceramicBlueMat);
+        vase.position.set(x, y + 0.18, z);
+        parent.add(vase);
+        const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.24, 8), leafMat);
+        stem.position.set(x, y + 0.42, z);
+        parent.add(stem);
+        const bloom = new THREE.Mesh(new THREE.SphereGeometry(0.075, 10, 8), ceramicCoralMat);
+        bloom.position.set(x, y + 0.54, z);
+        parent.add(bloom);
+      }
+      function addAntiquePiece(parent, x, y, z) {
+        const base = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.06, 0.24), woodDarkMat);
+        base.position.set(x, y + 0.03, z);
+        parent.add(base);
+        const urn = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.07, 0.34, 14), brassMat);
+        urn.position.set(x, y + 0.23, z);
+        parent.add(urn);
+        const top = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 8), brassMat);
+        top.position.set(x, y + 0.42, z);
+        parent.add(top);
+      }
+      function addToyPiece(parent, x, y, z) {
+        const b1 = new THREE.Mesh(new THREE.BoxGeometry(0.20, 0.14, 0.20), ceramicCoralMat);
+        b1.position.set(x, y + 0.07, z);
+        parent.add(b1);
+        const b2 = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.14, 0.14), brassMat);
+        b2.position.set(x, y + 0.21, z);
+        b2.rotation.y = 0.4;
+        parent.add(b2);
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.08, 12, 10), ceramicBlueMat);
+        head.position.set(x, y + 0.35, z);
+        parent.add(head);
+      }
+
+      // 1. WALL SHOWCASE (Image 1 position: X: 28.47..32.68, Z: 0.52..1.70, Y: 0..10.0)
       const showcaseGroup = new THREE.Group();
       showcaseGroup.name = 'wallShowcaseUnit';
       const scX0 = 28.47, scX1 = 32.68, scZ0 = 0.52, scZ1 = 1.70;
       const scW = scX1 - scX0, scD = scZ1 - scZ0;
       const scCX = (scX0 + scX1) / 2, scCZ = (scZ0 + scZ1) / 2;
 
-      // Lower 2 ft closed cabinet (Y = 0 .. 2.0)
+      // 1st Tier: Lower 2 ft closed cabinet (Y = 0 .. 2.0)
       const scPlinth = new THREE.Mesh(new THREE.BoxGeometry(scW, 0.25, scD - 0.08), woodDarkMat);
       scPlinth.position.set(scCX, 0.125, scCZ - 0.04);
       showcaseGroup.add(scPlinth);
@@ -1695,7 +1796,6 @@
       scCounter.position.set(scCX, 1.95, scCZ);
       showcaseGroup.add(scCounter);
 
-      // 3 lower cabinet doors + handles facing +Z
       const scDoorW = (scW - 0.08) / 3;
       for (let i = 0; i < 3; i++) {
         const dx = scX0 + 0.04 + (i + 0.5) * scDoorW;
@@ -1708,8 +1808,7 @@
         showcaseGroup.add(hnd);
       }
 
-      // Microwave open space (Y = 2.0 .. 3.6) with back/side framing & 3D microwave
-      const mwSpaceH = 1.60;
+      // Outer back panel & side walls (Y = 2.0 .. 10.0)
       const scBackPanel = new THREE.Mesh(new THREE.BoxGeometry(scW, 8.0, 0.05), woodLightMat);
       scBackPanel.position.set(scCX, 6.0, scZ0 + 0.025);
       showcaseGroup.add(scBackPanel);
@@ -1720,78 +1819,128 @@
         showcaseGroup.add(side);
       }
 
-      // Microwave oven sitting inside the microwave space at Y = 2.0
-      const mwGroup = new THREE.Group();
-      const mwBodyMat = new THREE.MeshStandardMaterial({ color: '#1f2226', roughness: 0.35, metalness: 0.55 });
-      const mwScreenMat = new THREE.MeshStandardMaterial({ color: '#101418', roughness: 0.15, metalness: 0.70 });
-      const mwBody = new THREE.Mesh(new THREE.BoxGeometry(1.75, 1.02, 0.92), mwBodyMat);
-      mwBody.position.set(scCX, 2.0 + 0.51, scCZ - 0.04);
-      mwGroup.add(mwBody);
-      const mwGlass = new THREE.Mesh(new THREE.BoxGeometry(1.20, 0.78, 0.04), mwScreenMat);
-      mwGlass.position.set(scCX - 0.18, 2.0 + 0.51, scCZ + 0.43);
-      mwGroup.add(mwGlass);
-      const mwHandle = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.56, 0.05), handleMat);
-      mwHandle.position.set(scCX + 0.34, 2.0 + 0.51, scCZ + 0.46);
-      mwGroup.add(mwHandle);
-      const mwPad = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.78, 0.03), new THREE.MeshStandardMaterial({ color: '#2b3036', roughness: 0.4 }));
-      mwPad.position.set(scCX + 0.62, 2.0 + 0.51, scCZ + 0.43);
-      mwGroup.add(mwPad);
-      showcaseGroup.add(mwGroup);
-
-      // Upper Glass Showcase from Y = 3.6 up to roof Y = 10.0
-      const scMidShelf = new THREE.Mesh(new THREE.BoxGeometry(scW - 0.16, 0.08, scD), woodDarkMat);
-      scMidShelf.position.set(scCX, 3.60, scCZ);
-      showcaseGroup.add(scMidShelf);
-
-      const scTopRail = new THREE.Mesh(new THREE.BoxGeometry(scW, 0.10, scD), woodLightMat);
-      scTopRail.position.set(scCX, 9.95, scCZ);
-      showcaseGroup.add(scTopRail);
-
-      for (const sy of [5.15, 6.75, 8.35]) {
+      // Horizontal dividers: Y = 3.60 (top of 2nd tier), Y = 5.20 (top of 3rd microwave tier), Y = 6.78, Y = 8.36, Y = 9.95
+      for (const sy of [3.60, 5.20]) {
+        const div = new THREE.Mesh(new THREE.BoxGeometry(scW - 0.16, 0.08, scD), woodDarkMat);
+        div.position.set(scCX, sy, scCZ);
+        showcaseGroup.add(div);
+      }
+      for (const sy of [6.78, 8.36]) {
         const shelf = new THREE.Mesh(new THREE.BoxGeometry(scW - 0.16, 0.06, scD - 0.12), woodLightMat);
         shelf.position.set(scCX, sy, scCZ - 0.04);
         showcaseGroup.add(shelf);
       }
+      const scTopRail = new THREE.Mesh(new THREE.BoxGeometry(scW, 0.10, scD), woodLightMat);
+      scTopRail.position.set(scCX, 9.95, scCZ);
+      showcaseGroup.add(scTopRail);
 
-      // Showcase decorative items inside shelves
-      const v1 = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.22, 0.62, 16), decorMat1);
-      v1.position.set(scCX - 0.9, 5.15 + 0.34, scCZ);
-      showcaseGroup.add(v1);
-      const v2 = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.14, 0.50, 16), decorMat2);
-      v2.position.set(scCX + 0.85, 6.75 + 0.28, scCZ);
-      showcaseGroup.add(v2);
-      const v3 = new THREE.Mesh(new THREE.SphereGeometry(0.24, 16, 12), decorMat3);
-      v3.position.set(scCX, 8.35 + 0.27, scCZ);
-      showcaseGroup.add(v3);
+      // 2 Vertical Separators inside 2nd tier (2.0..3.6) AND upper glass showcase (5.2..9.95) -> 3 blocks per row
+      const innerSpanW = scW - 0.16;
+      const colCentersX = [
+        scX0 + 0.08 + innerSpanW * (1 / 6),
+        scX0 + 0.08 + innerSpanW * (3 / 6),
+        scX0 + 0.08 + innerSpanW * (5 / 6)
+      ];
+      for (const sepX of [scX0 + 0.08 + innerSpanW / 3, scX0 + 0.08 + (2 * innerSpanW) / 3]) {
+        const sep2nd = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.56, scD - 0.12), woodLightMat);
+        sep2nd.position.set(sepX, 2.80, scCZ - 0.04);
+        showcaseGroup.add(sep2nd);
 
-      // 2 Tall Glass Showcase Doors (Y = 3.64 .. 9.90)
-      const gDoorW = (scW - 0.18) / 2;
-      const gDoorH = 9.90 - 3.64;
-      const gDoorCY = 3.64 + gDoorH / 2;
-      for (let i = 0; i < 2; i++) {
-        const dx = scX0 + 0.09 + (i + 0.5) * gDoorW;
-        const pane = new THREE.Mesh(new THREE.BoxGeometry(gDoorW - 0.14, gDoorH - 0.14, 0.03), showcaseGlassMat);
-        pane.position.set(dx, gDoorCY, scZ1 - 0.03);
-        showcaseGroup.add(pane);
-
-        // Door frame stiles & rails
-        for (const side of [-1, 1]) {
-          const stile = new THREE.Mesh(new THREE.BoxGeometry(0.06, gDoorH, 0.06), woodDarkMat);
-          stile.position.set(dx + side * (gDoorW / 2 - 0.04), gDoorCY, scZ1 - 0.03);
-          showcaseGroup.add(stile);
-        }
-        for (const ry of [3.67, 9.87]) {
-          const rail = new THREE.Mesh(new THREE.BoxGeometry(gDoorW - 0.02, 0.06, 0.06), woodDarkMat);
-          rail.position.set(dx, ry, scZ1 - 0.03);
-          showcaseGroup.add(rail);
-        }
-        const gHnd = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.55, 0.04), handleMat);
-        gHnd.position.set(dx + (i === 0 ? gDoorW * 0.38 : -gDoorW * 0.38), 5.4, scZ1 + 0.015);
-        showcaseGroup.add(gHnd);
+        const sepUpper = new THREE.Mesh(new THREE.BoxGeometry(0.06, 4.70, scD - 0.12), woodLightMat);
+        sepUpper.position.set(sepX, 5.24 + 4.70 / 2, scCZ - 0.04);
+        showcaseGroup.add(sepUpper);
       }
+
+      // 3rd Tier (Y = 3.6 .. 5.2): Longer Microwave + White Glass Door with Black Frame
+      const mwGroup = new THREE.Group();
+      const mwBodyMat = new THREE.MeshStandardMaterial({ color: '#f2f2ef', roughness: 0.32, metalness: 0.25 });
+      const mwWhiteGlassMat = new THREE.MeshPhysicalMaterial({
+        color: '#eef5f8',
+        transparent: true,
+        opacity: 0.72,
+        roughness: 0.10,
+        metalness: 0.15
+      });
+      const mwFrameMat = new THREE.MeshStandardMaterial({ color: '#141618', roughness: 0.35, metalness: 0.60 });
+      const mwW = 2.65, mwH = 1.08, mwD = 0.94;
+      const mwBody = new THREE.Mesh(new THREE.BoxGeometry(mwW, mwH, mwD), mwBodyMat);
+      mwBody.position.set(scCX, 3.64 + mwH / 2, scCZ - 0.04);
+      mwGroup.add(mwBody);
+
+      // Door on left 75% of microwave: black frame + white glass pane + handle
+      const mwDoorW = 1.92, mwDoorH = 0.90, mwDoorX = scCX - 0.28, mwDoorY = 3.64 + mwH / 2, mwDoorZ = scCZ + mwD / 2 - 0.02;
+      const mwDoorFrame = new THREE.Mesh(new THREE.BoxGeometry(mwDoorW, mwDoorH, 0.04), mwFrameMat);
+      mwDoorFrame.position.set(mwDoorX, mwDoorY, mwDoorZ);
+      mwGroup.add(mwDoorFrame);
+
+      const mwGlassPane = new THREE.Mesh(new THREE.BoxGeometry(mwDoorW - 0.14, mwDoorH - 0.14, 0.048), mwWhiteGlassMat);
+      mwGlassPane.position.set(mwDoorX, mwDoorY, mwDoorZ + 0.004);
+      mwGroup.add(mwGlassPane);
+
+      const mwHandle = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.62, 0.06), mwFrameMat);
+      mwHandle.position.set(mwDoorX + mwDoorW / 2 - 0.12, mwDoorY, mwDoorZ + 0.045);
+      mwGroup.add(mwHandle);
+
+      const mwPad = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.90, 0.03), mwFrameMat);
+      mwPad.position.set(scCX + 0.98, mwDoorY, mwDoorZ);
+      mwGroup.add(mwPad);
+      showcaseGroup.add(mwGroup);
+
+      // Fill 2nd tier (Y = 2.0) and Upper showcase rows (Y = 5.24, 6.81, 8.39) across all 3 blocks
+      // Row 2nd tier (Y = 2.00)
+      addPlateStack(showcaseGroup, colCentersX[0], 2.00, scCZ);
+      addPan(showcaseGroup, colCentersX[1], 2.00, scCZ);
+      addBowl(showcaseGroup, colCentersX[2] - 0.22, 2.00, scCZ, ceramicBlueMat);
+      addBowl(showcaseGroup, colCentersX[2] + 0.24, 2.00, scCZ, ceramicCoralMat);
+
+      // Upper row 1 (Y = 5.24)
+      addMug(showcaseGroup, colCentersX[0] - 0.22, 5.24, scCZ, ceramicCoralMat);
+      addMug(showcaseGroup, colCentersX[0] + 0.20, 5.24, scCZ, ceramicBlueMat);
+      addJug(showcaseGroup, colCentersX[1], 5.24, scCZ, steelMat);
+      addSpoonSet(showcaseGroup, colCentersX[2], 5.24, scCZ);
+
+      // Upper row 2 (Y = 6.81)
+      addPlateStack(showcaseGroup, colCentersX[0], 6.81, scCZ, ceramicBlueMat);
+      addBowl(showcaseGroup, colCentersX[1], 6.81, scCZ, ceramicWhiteMat);
+      addJug(showcaseGroup, colCentersX[2], 6.81, scCZ, ceramicWhiteMat);
+
+      // Upper row 3 (Y = 8.39)
+      addPan(showcaseGroup, colCentersX[0], 8.39, scCZ);
+      addMug(showcaseGroup, colCentersX[1] - 0.18, 8.39, scCZ, ceramicWhiteMat);
+      addMug(showcaseGroup, colCentersX[1] + 0.22, 8.39, scCZ, ceramicCoralMat);
+      addPlateStack(showcaseGroup, colCentersX[2], 8.39, scCZ, ceramicWhiteMat);
+
+      // Framed Glass Doors on BOTH 2nd tier (Y = 2.02..3.56) AND Upper showcase (Y = 5.24..9.90)
+      const gDoorW = (scW - 0.18) / 2;
+      function addGlassDoorPair(yBot, yTop, handleY) {
+        const dH = yTop - yBot;
+        const dCY = yBot + dH / 2;
+        for (let i = 0; i < 2; i++) {
+          const dx = scX0 + 0.09 + (i + 0.5) * gDoorW;
+          const pane = new THREE.Mesh(new THREE.BoxGeometry(gDoorW - 0.14, dH - 0.14, 0.03), showcaseGlassMat);
+          pane.position.set(dx, dCY, scZ1 - 0.03);
+          showcaseGroup.add(pane);
+          for (const side of [-1, 1]) {
+            const stile = new THREE.Mesh(new THREE.BoxGeometry(0.06, dH, 0.06), woodDarkMat);
+            stile.position.set(dx + side * (gDoorW / 2 - 0.04), dCY, scZ1 - 0.03);
+            showcaseGroup.add(stile);
+          }
+          for (const ry of [yBot + 0.03, yTop - 0.03]) {
+            const rail = new THREE.Mesh(new THREE.BoxGeometry(gDoorW - 0.02, 0.06, 0.06), woodDarkMat);
+            rail.position.set(dx, ry, scZ1 - 0.03);
+            showcaseGroup.add(rail);
+          }
+          const gHnd = new THREE.Mesh(new THREE.BoxGeometry(0.03, Math.min(0.50, dH * 0.35), 0.04), handleMat);
+          gHnd.position.set(dx + (i === 0 ? gDoorW * 0.38 : -gDoorW * 0.38), handleY, scZ1 + 0.015);
+          showcaseGroup.add(gHnd);
+        }
+      }
+      addGlassDoorPair(2.02, 3.56, 2.80); // 2nd space covered with glass door
+      addGlassDoorPair(5.24, 9.90, 6.20); // Upper glass showcase doors
+
       furnitureGroup.add(showcaseGroup);
 
-      // 2. TV WALL UNIT (Image 2 position: Bathroom-7 East recess, X: 13.40..14.41, Z: 4.76..12.14, Y: 0..10.0)
+      // 2. TV WALL UNIT (Image 2 position: X: 13.40..14.41, Z: 4.76..12.14)
       const tvUnitGroup = new THREE.Group();
       tvUnitGroup.name = 'tvWallUnit';
       const tvX0 = 13.40, tvX1 = 14.41, tvZ0 = 4.76, tvZ1 = 12.14;
@@ -1811,7 +1960,6 @@
       tvCabTop.position.set(tvCX, 1.46, tvCZ);
       tvUnitGroup.add(tvCabTop);
 
-      // 4 Drawer / Door fronts facing +X
       const tvDoorW = (tvW - 0.10) / 4;
       for (let i = 0; i < 4; i++) {
         const dz = tvZ0 + 0.05 + (i + 0.5) * tvDoorW;
@@ -1824,52 +1972,60 @@
         tvUnitGroup.add(hnd);
       }
 
-      // 2 Narrow Corner Showpiece Racks over the cabinet up to the roof (Y = 1.5 .. 10.0)
+      // 2 Narrow Corner Showpiece Racks over cabinet up to door-top (Y = 1.5 .. 7.0 ft)
       const rackW = 1.10;
+      const rackH = 7.00 - 1.50; // 5.50 ft up to door-top Y = 7.0
       const rackCentersZ = [tvZ0 + rackW / 2, tvZ1 - rackW / 2];
-      for (const rz of rackCentersZ) {
-        const rBack = new THREE.Mesh(new THREE.BoxGeometry(0.05, 8.50, rackW), woodLightMat);
-        rBack.position.set(tvX0 + 0.025, 1.50 + 4.25, rz);
+      rackCentersZ.forEach((rz, idx) => {
+        const rBack = new THREE.Mesh(new THREE.BoxGeometry(0.05, rackH, rackW), woodLightMat);
+        rBack.position.set(tvX0 + 0.025, 1.50 + rackH / 2, rz);
         tvUnitGroup.add(rBack);
 
         for (const side of [-1, 1]) {
-          const rSide = new THREE.Mesh(new THREE.BoxGeometry(tvD - 0.04, 8.50, 0.06), woodDarkMat);
-          rSide.position.set(tvCX - 0.02, 1.50 + 4.25, rz + side * (rackW / 2 - 0.03));
+          const rSide = new THREE.Mesh(new THREE.BoxGeometry(tvD - 0.04, rackH, 0.06), woodDarkMat);
+          rSide.position.set(tvCX - 0.02, 1.50 + rackH / 2, rz + side * (rackW / 2 - 0.03));
           tvUnitGroup.add(rSide);
         }
         const rTop = new THREE.Mesh(new THREE.BoxGeometry(tvD - 0.04, 0.08, rackW), woodDarkMat);
-        rTop.position.set(tvCX - 0.02, 9.96, rz);
+        rTop.position.set(tvCX - 0.02, 6.96, rz);
         tvUnitGroup.add(rTop);
 
-        for (let s = 0; s < 4; s++) {
-          const sy = 3.20 + s * 1.70;
+        const shelfYs = [2.85, 4.25, 5.65];
+        shelfYs.forEach((sy, sIdx) => {
           const rShelf = new THREE.Mesh(new THREE.BoxGeometry(tvD - 0.08, 0.06, rackW - 0.12), woodLightMat);
           rShelf.position.set(tvCX - 0.04, sy, rz);
           tvUnitGroup.add(rShelf);
+        });
 
-          // Small showpiece on alternating shelves
-          const spMat = s % 2 === 0 ? decorMat1 : (s === 1 ? decorMat2 : decorMat3);
-          const sp = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.16, 0.44, 14), spMat);
-          sp.position.set(tvCX, sy + 0.25, rz);
-          tvUnitGroup.add(sp);
+        // Fill corner racks with varied showpieces (plant-pot, flower-vase, antique-pieces, toys)
+        if (idx === 0) {
+          addPlantPot(tvUnitGroup, tvCX, 1.50, rz);
+          addAntiquePiece(tvUnitGroup, tvCX, 2.88, rz);
+          addToyPiece(tvUnitGroup, tvCX, 4.28, rz);
+          addFlowerVase(tvUnitGroup, tvCX, 5.68, rz);
+        } else {
+          addFlowerVase(tvUnitGroup, tvCX, 1.50, rz);
+          addToyPiece(tvUnitGroup, tvCX, 2.88, rz);
+          addPlantPot(tvUnitGroup, tvCX, 4.28, rz);
+          addAntiquePiece(tvUnitGroup, tvCX, 5.68, rz);
         }
-      }
+      });
 
-      // 32" Wall-Mounted TV in the center-middle of the wall (32" 16:9 => 2.32 ft wide x 1.31 ft tall)
-      const tvW32 = 2.32, tvH32 = 1.31, tvMountY = 5.0;
-      const tvMountBracket = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.55, 0.70), handleMat);
+      // Wall-Mounted TV: slightly larger (3.05 ft x 1.72 ft) & placed slightly lower (Y = 4.25 ft)
+      const tvWBig = 3.05, tvHBig = 1.72, tvMountY = 4.25;
+      const tvMountBracket = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.65, 0.90), handleMat);
       tvMountBracket.position.set(tvX0 + 0.07, tvMountY, tvCZ);
       tvUnitGroup.add(tvMountBracket);
 
       const tvBezel = new THREE.Mesh(
-        new THREE.BoxGeometry(0.10, tvH32, tvW32),
+        new THREE.BoxGeometry(0.10, tvHBig, tvWBig),
         new THREE.MeshStandardMaterial({ color: '#141618', roughness: 0.35, metalness: 0.50 })
       );
       tvBezel.position.set(tvX0 + 0.18, tvMountY, tvCZ);
       tvUnitGroup.add(tvBezel);
 
       const tvScreen = new THREE.Mesh(
-        new THREE.BoxGeometry(0.02, tvH32 - 0.10, tvW32 - 0.10),
+        new THREE.BoxGeometry(0.02, tvHBig - 0.11, tvWBig - 0.11),
         new THREE.MeshStandardMaterial({ color: '#090c10', roughness: 0.12, metalness: 0.85 })
       );
       tvScreen.position.set(tvX0 + 0.23, tvMountY, tvCZ);
