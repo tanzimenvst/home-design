@@ -2513,15 +2513,14 @@
         bedsGroup.add(bed);
       }
 
-      const bedLen = 6.70, bedWid = 5.60;
-      // Room 1 (NW): head on West wall (X = 0.5474), flush to South wall (Z = 27.1168)
-      addBed(0.5474 + bedLen / 2, 27.1168 - bedWid / 2, bedWid, bedLen, 'W');
-      // Room 2 (SW): head on East staircase wall pilaster (X = 22.9927), flush to South wall (Z = 38.5036)
-      addBed(22.9927 - bedLen / 2, 38.5036 - bedWid / 2, bedWid, bedLen, 'E');
-      // Room 3 (SE): head on West staircase wall pilaster (X = 33.7226), flush to South wall (Z = 38.5036)
-      addBed(33.7226 + bedLen / 2, 38.5036 - bedWid / 2, bedWid, bedLen, 'W');
-      // Room 4 (NE): head on East wall (X = 56.1679), flush to South wall (Z = 27.1168)
-      addBed(56.1679 - bedLen / 2, 27.1168 - bedWid / 2, bedWid, bedLen, 'E');
+      // Room 1 (NW): 8.3 ft x 5.6 ft, head on West wall (X = 0.5474), flush to South wall (Z = 27.1168)
+      addBed(0.5474 + 8.3 / 2, 27.1168 - 5.6 / 2, 5.6, 8.3, 'W');
+      // Room 2 (SW): 9.65 ft x 7.2 ft, head on East staircase wall pilaster (X = 22.9927), flush to South wall (Z = 38.5036)
+      addBed(22.9927 - 9.65 / 2, 38.5036 - 7.2 / 2, 7.2, 9.65, 'E');
+      // Room 3 (SE): 9.65 ft x 7.2 ft, head on West staircase wall pilaster (X = 33.7226), flush to South wall (Z = 38.5036)
+      addBed(33.7226 + 9.65 / 2, 38.5036 - 7.2 / 2, 7.2, 9.65, 'W');
+      // Room 4 (NE): 8.68 ft x 7.2 ft, head on East wall (X = 56.1679), flush to South wall (Z = 27.1168)
+      addBed(56.1679 - 8.68 / 2, 27.1168 - 7.2 / 2, 7.2, 8.68, 'E');
 
       furnitureGroup.add(bedsGroup);
     })();
