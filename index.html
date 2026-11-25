@@ -2294,8 +2294,8 @@
         sofaGroup.add(bc);
       }
 
-      // 6b. Separate Partition-Side Sofa (S2): X: 25.45 .. 28.20, Z: 3.65 .. 8.35 (4.70 ft long), facing -X toward TV
-      const s2X0 = 25.45, s2X1 = 28.20, s2Z0 = 3.65, s2Z1 = 8.35;
+      // 6b. Separate Partition-Side Sofa (S2): X: 25.55 .. 28.34, Z: 2.40 .. 8.35 (5.95 ft long, 3-seater), facing -X toward TV
+      const s2X0 = 25.55, s2X1 = 28.34, s2Z0 = 2.40, s2Z1 = 8.35;
       const s2D = s2X1 - s2X0, s2W = s2Z1 - s2Z0;
       const s2CX = (s2X0 + s2X1) / 2, s2CZ = (s2Z0 + s2Z1) / 2;
 
@@ -2314,8 +2314,8 @@
       }
 
       const c2Span = s2W - 1.15;
-      const c2W = c2Span / 2;
-      for (let i = 0; i < 2; i++) {
+      const c2W = c2Span / 3;
+      for (let i = 0; i < 3; i++) {
         const cz = s2Z0 + 0.575 + (i + 0.5) * c2W;
         const sc = new THREE.Mesh(new THREE.BoxGeometry(s2D - 0.62, 0.45, c2W - 0.06), sofaCushionMat);
         sc.position.set(s2CX - 0.26, 1.12, cz);
@@ -2339,44 +2339,79 @@
         sofaGroup.add(pil);
       }
 
-      // 6c. Corner T-Table (V) in pocket between pier (24.01), back wall (0.51), partition (28.34), & S2 (3.65)
-      const ttCX = 26.25, ttCZ = 2.00, ttW = 2.50, ttD = 2.40, ttH = 1.90;
+      // 6c. Smaller Corner T-Table flush in the very corner (no gap from back wall Z=0.511 & glass partition X=28.344)
+      const ttW = 1.80, ttD = 1.80, ttH = 1.90;
+      const ttCX = 28.344 - ttW / 2, ttCZ = 0.511 + ttD / 2;
       const ttTop = new THREE.Mesh(new THREE.BoxGeometry(ttW, 0.10, ttD), sofaBaseMat);
       ttTop.position.set(ttCX, ttH - 0.05, ttCZ);
       sofaGroup.add(ttTop);
 
-      const ttShelf = new THREE.Mesh(new THREE.BoxGeometry(ttW - 0.28, 0.07, ttD - 0.28), woodLightMat);
+      const ttShelf = new THREE.Mesh(new THREE.BoxGeometry(ttW - 0.24, 0.07, ttD - 0.24), woodLightMat);
       ttShelf.position.set(ttCX, 0.55, ttCZ);
       sofaGroup.add(ttShelf);
 
-      for (const sx of [-(ttW / 2 - 0.14), ttW / 2 - 0.14]) {
-        for (const sz of [-(ttD / 2 - 0.14), ttD / 2 - 0.14]) {
-          const ttLeg = new THREE.Mesh(new THREE.BoxGeometry(0.12, ttH - 0.10, 0.12), sofaBaseMat);
+      for (const sx of [-(ttW / 2 - 0.12), ttW / 2 - 0.12]) {
+        for (const sz of [-(ttD / 2 - 0.12), ttD / 2 - 0.12]) {
+          const ttLeg = new THREE.Mesh(new THREE.BoxGeometry(0.11, ttH - 0.10, 0.11), sofaBaseMat);
           ttLeg.position.set(ttCX + sx, (ttH - 0.10) / 2, ttCZ + sz);
           sofaGroup.add(ttLeg);
         }
       }
 
-      // Flower Vase on top of Corner T-Table
-      const fvBase = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.30, 0.85, 18), ceramicBlueMat);
-      fvBase.position.set(ttCX, ttH + 0.425, ttCZ);
-      sofaGroup.add(fvBase);
-      const fvNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.22, 0.25, 18), ceramicWhiteMat);
-      fvNeck.position.set(ttCX, ttH + 0.95, ttCZ);
-      sofaGroup.add(fvNeck);
-      for (const [fx, fy, fz, fmat] of [
-        [0, 1.35, 0, ceramicCoralMat],
-        [-0.18, 1.25, 0.12, brassMat],
-        [0.18, 1.28, -0.10, ceramicWhiteMat],
-        [0.05, 1.20, 0.18, leafMat],
-        [-0.14, 1.22, -0.14, leafMat]
-      ]) {
-        const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.40, 8), leafMat);
-        stem.position.set(ttCX + fx * 0.5, ttH + 1.08, ttCZ + fz * 0.5);
-        sofaGroup.add(stem);
-        const flw = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 10), fmat);
-        flw.position.set(ttCX + fx, ttH + fy, ttCZ + fz);
-        sofaGroup.add(flw);
+      // Larger Philodendron Plant Vase on Corner T-Table
+      const philoPot = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.34, 0.92, 20), ceramicWhiteMat);
+      philoPot.position.set(ttCX, ttH + 0.46, ttCZ);
+      sofaGroup.add(philoPot);
+
+      const philoSoil = new THREE.Mesh(new THREE.CylinderGeometry(0.43, 0.43, 0.06, 18), new THREE.MeshStandardMaterial({ color: '#2b2016', roughness: 0.95 }));
+      philoSoil.position.set(ttCX, ttH + 0.90, ttCZ);
+      sofaGroup.add(philoSoil);
+
+      // Heart-shaped Philodendron leaf geometry
+      const philoShape = new THREE.Shape();
+      philoShape.moveTo(0, 0);
+      philoShape.bezierCurveTo(0.28, 0.18, 0.36, -0.05, 0.26, -0.35);
+      philoShape.bezierCurveTo(0.16, -0.60, 0.04, -0.78, 0, -0.88);
+      philoShape.bezierCurveTo(-0.04, -0.78, -0.16, -0.60, -0.26, -0.35);
+      philoShape.bezierCurveTo(-0.36, -0.05, -0.28, 0.18, 0, 0);
+      const philoLeafGeom = new THREE.ShapeGeometry(philoShape);
+      const philoDarkMat = new THREE.MeshStandardMaterial({ color: '#1b5e2e', roughness: 0.36, metalness: 0.06, side: THREE.DoubleSide });
+      const philoMidMat = new THREE.MeshStandardMaterial({ color: '#287a3e', roughness: 0.32, metalness: 0.08, side: THREE.DoubleSide });
+      const philoStemMat = new THREE.MeshStandardMaterial({ color: '#2d6335', roughness: 0.55 });
+
+      const philoFronds = [
+        // [azimDeg, stemLen, tiltOut, leafScale, mat]
+        [15,  1.05, 0.52, 1.05, philoMidMat],
+        [55,  1.25, 0.42, 1.15, philoDarkMat],
+        [100, 1.10, 0.55, 1.00, philoMidMat],
+        [145, 1.30, 0.38, 1.18, philoDarkMat],
+        [190, 1.00, 0.58, 0.95, philoMidMat],
+        [235, 1.22, 0.46, 1.10, philoDarkMat],
+        [280, 1.08, 0.52, 1.02, philoMidMat],
+        [325, 1.28, 0.40, 1.12, philoDarkMat],
+        [30,  0.80, 0.22, 0.90, philoMidMat],
+        [165, 0.85, 0.20, 0.92, philoMidMat],
+        [265, 0.82, 0.24, 0.88, philoDarkMat]
+      ];
+      for (const [deg, sLen, tilt, lScale, lMat] of philoFronds) {
+        const rad = deg * Math.PI / 180;
+        const frond = new THREE.Group();
+        frond.position.set(ttCX, ttH + 0.90, ttCZ);
+        frond.rotation.y = rad;
+
+        const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.032, sLen, 8), philoStemMat);
+        stem.position.set(Math.sin(tilt) * sLen * 0.5, Math.cos(tilt) * sLen * 0.5, 0);
+        stem.rotation.z = -tilt;
+        frond.add(stem);
+
+        const leaf = new THREE.Mesh(philoLeafGeom, lMat);
+        leaf.scale.set(lScale, lScale, 1);
+        leaf.position.set(Math.sin(tilt) * sLen, Math.cos(tilt) * sLen, 0);
+        leaf.rotation.y = Math.PI / 2;
+        leaf.rotation.x = 0.85 + tilt * 0.55;
+        frond.add(leaf);
+
+        sofaGroup.add(frond);
       }
 
       // 6d. Resized Front Coffee Table (T) in front of back-wall sofa
