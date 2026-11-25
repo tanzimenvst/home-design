@@ -39,13 +39,26 @@
       height: 100%;
     }
 
-    /* Bottom Left Control Bar / Vertical Sidebar */
+    /* Bottom Left Control Bar / Vertical Sidebar (3 separate parts) */
     .control-bar,
     .sidebar-v {
       position: fixed;
       bottom: 14px;
       left: 14px;
       width: 148px;
+      background: transparent;
+      border: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 100;
+      user-select: none;
+      box-sizing: border-box;
+    }
+
+    .sidebar-part {
+      width: 100%;
       background: rgba(16, 22, 19, 0.94);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
@@ -56,8 +69,6 @@
       display: flex;
       flex-direction: column;
       gap: 4px;
-      z-index: 100;
-      user-select: none;
       box-sizing: border-box;
     }
 
@@ -136,6 +147,11 @@
         bottom: 8px;
         left: 8px;
         width: 132px;
+        gap: 5px;
+        padding: 0;
+      }
+
+      .sidebar-part {
         gap: 3px;
         padding: 4px;
       }
@@ -163,55 +179,49 @@
   <div id="view"></div>
   <div id="map" style="display: none;"></div>
   <nav class="sidebar-v" id="control-bar">
-    <!-- Row 1: Interior Layout -->
-    <div class="sidebar-v-row">
-      <button id="btn-env-studio" class="ctrl-btn active" title="Interior Layout (2nd Floor Plan &amp; Interior)">Interior
-        Layout</button>
+    <!-- Part 1: Interior Layout & Layers -->
+    <div class="sidebar-part">
+      <div class="sidebar-v-row">
+        <button id="btn-env-studio" class="ctrl-btn active" title="Interior Layout (2nd Floor Plan &amp; Interior)">Interior
+          Layout</button>
+      </div>
+      <div class="sidebar-v-row">
+        <button id="btn-layer-2d" class="ctrl-btn" title="Toggle 2D floor plan underlay">2D
+          Plan</button>
+        <button id="btn-layer-furniture" class="ctrl-btn"
+          title="Toggle interior furniture on/off">Furniture</button>
+      </div>
     </div>
 
-    <!-- Row 2: 2D Plan | Furniture -->
-    <div class="sidebar-v-row">
-      <button id="btn-layer-2d" class="ctrl-btn" title="Toggle 2D floor plan underlay">2D
-        Plan</button>
-      <button id="btn-layer-furniture" class="ctrl-btn"
-        title="Toggle interior furniture on/off">Furniture</button>
+    <!-- Part 2: Outdoor Basemaps & Building Views -->
+    <div class="sidebar-part">
+      <div class="sidebar-v-row" id="basemap-section">
+        <button id="btn-basemap-grass" class="ctrl-btn"
+          title="Outdoor landscape environment with grass &amp; sky">Landscape</button>
+      </div>
+      <div class="sidebar-v-row">
+        <button id="btn-basemap-default" class="ctrl-btn" title="Google Maps standard roadmap basemap">Roadmap</button>
+        <button id="btn-basemap-satellite" class="ctrl-btn"
+          title="Google Maps satellite imagery basemap">Satellite</button>
+      </div>
+      <div class="sidebar-v-row" id="row-3d-buildings">
+        <button id="btn-toggle-3d" class="ctrl-btn disabled" disabled
+          title="Toggle 3D surrounding buildings (Roadmap &amp; Satellite only)">3D Buildings</button>
+      </div>
+      <div class="sidebar-v-row" id="building-view-section">
+        <button id="btn-view-current" class="ctrl-btn disabled" disabled
+          title="Current view (Outdoor only)">Current</button>
+        <button id="btn-view-complete" class="ctrl-btn disabled" disabled
+          title="Complete view (Outdoor only)">Complete</button>
+      </div>
     </div>
 
-    <hr style="width: 100%; border-color: #474747;">
-
-    <!-- Row 3: Landscape -->
-    <div class="sidebar-v-row" id="basemap-section">
-      <button id="btn-basemap-grass" class="ctrl-btn"
-        title="Outdoor landscape environment with grass &amp; sky">Landscape</button>
-    </div>
-
-    <!-- Row 4: Roadmap | Satellite -->
-    <div class="sidebar-v-row">
-      <button id="btn-basemap-default" class="ctrl-btn" title="Google Maps standard roadmap basemap">Roadmap</button>
-      <button id="btn-basemap-satellite" class="ctrl-btn"
-        title="Google Maps satellite imagery basemap">Satellite</button>
-    </div>
-
-    <!-- 3D Buildings Toggle -->
-    <div class="sidebar-v-row" id="row-3d-buildings">
-      <button id="btn-toggle-3d" class="ctrl-btn disabled" disabled
-        title="Toggle 3D surrounding buildings (Roadmap &amp; Satellite only)">3D Buildings</button>
-    </div>
-
-    <!-- Row 5: Current | Complete -->
-    <div class="sidebar-v-row" id="building-view-section">
-      <button id="btn-view-current" class="ctrl-btn disabled" disabled
-        title="Current view (Outdoor only)">Current</button>
-      <button id="btn-view-complete" class="ctrl-btn disabled" disabled
-        title="Complete view (Outdoor only)">Complete</button>
-    </div>
-
-    <hr style="width: 100%; border-color: #474747;">
-
-    <!-- Row 6: Top View | Reset View -->
-    <div class="sidebar-v-row">
-      <button id="btn-cam-top" class="ctrl-btn" title="Top-down camera view">Top View</button>
-      <button id="btn-cam-reset" class="ctrl-btn" title="Reset perspective camera angle">Reset View</button>
+    <!-- Part 3: Camera Controls -->
+    <div class="sidebar-part">
+      <div class="sidebar-v-row">
+        <button id="btn-cam-top" class="ctrl-btn" title="Top-down camera view">Top View</button>
+        <button id="btn-cam-reset" class="ctrl-btn" title="Reset perspective camera angle">Reset View</button>
+      </div>
     </div>
   </nav>
 
@@ -296,11 +306,12 @@
     const balconyDoors = [];
 
     // Exact vector polygons from second_floor_layout.geojson snapped to clean integer grid planes
-    const LAYOUT_FEATURES = [{ "id": 0, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[858, 675], [858, 1266], [911, 1266], [911, 1281], [845, 1281], [845, 1266], [728, 1266], [728, 1251], [845, 1251], [845, 1156], [830, 1156], [830, 1124], [845, 1124], [845, 711], [825, 711], [825, 675], [825, 661], [894, 661], [894, 675], [858, 675]] }, { "id": 1, "type": "W", "h": 6.0, "lw": 0.0, "hw": 4.0, "pts": [[1045, 1281], [911, 1281], [911, 1266], [1045, 1266], [1045, 1281]] }, { "id": 2, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[1130, 675], [1130, 711], [1111, 711], [1111, 1124], [1124, 1124], [1124, 1156], [1111, 1156], [1111, 1251], [1226, 1251], [1226, 1266], [1111, 1266], [1111, 1281], [1045, 1281], [1045, 1266], [1096, 1266], [1096, 675], [1061, 675], [1061, 661], [1130, 661], [1130, 675]] }, { "id": 3, "type": "W", "h": 4.5, "lw": 2.5, "hw": 3.0, "pts": [[1226, 1266], [1226, 1251], [1393, 1251], [1393, 1266], [1226, 1266]] }, { "id": 4, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[1524, 1216], [1524, 1281], [1510, 1281], [1510, 1266], [1393, 1266], [1393, 1251], [1510, 1251], [1510, 1216], [1524, 1216]] }, { "id": 5, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[1510, 1216], [1510, 1133], [1524, 1133], [1524, 1216], [1510, 1216]] }, { "id": 6, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[1739, 1151], [1711, 1151], [1711, 1133], [1711, 1119], [1739, 1119], [1739, 1061], [1753, 1061], [1753, 1151], [1739, 1151]] }, { "id": 7, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[1627, 1133], [1510, 1133], [1510, 1119], [1627, 1119], [1627, 1133]] }, { "id": 8, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[1510, 1119], [1510, 1036], [1524, 1036], [1524, 1119], [1510, 1119]] }, { "id": 9, "type": "W", "h": 1.0, "lw": 6.0, "hw": 3.0, "pts": [[1739, 1061], [1739, 1011], [1753, 1011], [1753, 1061], [1739, 1061]] }, { "id": 10, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[1372, 698], [1372, 871], [1478, 871], [1478, 885], [1478, 939], [1739, 939], [1739, 892], [1753, 892], [1753, 1011], [1739, 1011], [1739, 953], [1524, 953], [1524, 1036], [1510, 1036], [1510, 953], [1478, 953], [1465, 953], [1465, 885], [1221, 885], [1221, 871], [1358, 871], [1358, 698], [1372, 698]] }, { "id": 11, "type": "W", "h": 4.5, "lw": 2.5, "hw": 3.0, "pts": [[1739, 892], [1739, 725], [1753, 725], [1753, 892], [1739, 892]] }, { "id": 12, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[1753, 573], [1753, 725], [1739, 725], [1739, 711], [1711, 711], [1711, 675], [1739, 675], [1739, 587], [1722, 587], [1722, 573], [1739, 573], [1753, 573]] }, { "id": 13, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[1753, 360], [1753, 475], [1739, 475], [1739, 441], [1576, 441], [1576, 427], [1739, 427], [1739, 360], [1753, 360]] }, { "id": 58, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[1439, 427], [1439, 573], [1455, 573], [1455, 587], [1358, 587], [1358, 573], [1425, 573], [1425, 441], [1358, 441], [1358, 427], [1439, 427]] }, { "id": 59, "type": "W", "h": 2.0, "lw": 8.0, "hw": 0.0, "pts": [[1576, 441], [1439, 441], [1439, 427], [1576, 427], [1576, 441]] }, { "id": 14, "type": "W", "h": 3.5, "lw": 3.5, "hw": 3.0, "pts": [[1739, 360], [1739, 259], [1753, 259], [1753, 360], [1739, 360]] }, { "id": 15, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[1753, 196], [1753, 259], [1739, 259], [1739, 243], [1711, 243], [1711, 210], [1372, 210], [1372, 326], [1358, 326], [1358, 210], [1307, 210], [1307, 196], [1739, 196], [1753, 196]] }, { "id": 16, "type": "W", "h": 4.5, "lw": 2.5, "hw": 3.0, "pts": [[1307, 210], [1140, 210], [1140, 196], [1307, 196], [1307, 210]] }, { "id": 17, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[1124, 210], [1124, 243], [1096, 243], [1096, 210], [858, 210], [858, 243], [830, 243], [830, 210], [811, 210], [811, 196], [1140, 196], [1140, 210], [1124, 210]] }, { "id": 18, "type": "W", "h": 4.5, "lw": 2.5, "hw": 3.0, "pts": [[811, 196], [811, 210], [644, 210], [644, 196], [811, 196]] }, { "id": 19, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[644, 196], [644, 210], [513, 210], [513, 196], [644, 196]] }, { "id": 20, "type": "W", "h": 4.5, "lw": 2.5, "hw": 3.0, "pts": [[513, 196], [513, 210], [430, 210], [430, 196], [513, 196]] }, { "id": 21, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[363, 210], [363, 311], [581, 311], [581, 293], [595, 293], [595, 311], [595, 326], [567, 326], [567, 529], [595, 529], [595, 542], [482, 542], [482, 529], [553, 529], [553, 326], [363, 326], [363, 401], [349, 401], [349, 210], [349, 196], [430, 196], [430, 210], [363, 210]] }, { "id": 22, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[201, 243], [201, 196], [242, 196], [242, 243], [201, 243]] }, { "id": 23, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[201, 416], [201, 344], [215, 344], [215, 416], [201, 416]] }, { "id": 24, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[215, 542], [215, 675], [242, 675], [242, 711], [215, 711], [215, 725], [201, 725], [201, 529], [215, 529], [265, 529], [265, 542], [215, 542]] }, { "id": 25, "type": "W", "h": 4.5, "lw": 2.5, "hw": 3.0, "pts": [[201, 725], [215, 725], [215, 892], [201, 892], [201, 725]] }, { "id": 26, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[595, 652], [595, 871], [735, 871], [735, 885], [491, 885], [491, 953], [477, 953], [444, 953], [444, 1036], [430, 1036], [430, 953], [215, 953], [215, 1011], [201, 1011], [201, 892], [215, 892], [215, 939], [477, 939], [477, 885], [477, 871], [581, 871], [581, 652], [595, 652]] }, { "id": 27, "type": "W", "h": 1.0, "lw": 6.0, "hw": 3.0, "pts": [[201, 1011], [215, 1011], [215, 1061], [201, 1061], [201, 1011]] }, { "id": 28, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[215, 1061], [215, 1119], [242, 1119], [242, 1133], [242, 1151], [215, 1151], [201, 1151], [201, 1061], [215, 1061]] }, { "id": 29, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[444, 1216], [444, 1251], [562, 1251], [562, 1266], [444, 1266], [444, 1281], [430, 1281], [430, 1216], [444, 1216]] }, { "id": 30, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[430, 1216], [430, 1133], [444, 1133], [444, 1216], [430, 1216]] }, { "id": 31, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[325, 1133], [325, 1119], [444, 1119], [444, 1133], [325, 1133]] }, { "id": 32, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[444, 1119], [430, 1119], [430, 1036], [444, 1036], [444, 1119]] }, { "id": 33, "type": "W", "h": 4.5, "lw": 2.5, "hw": 3.0, "pts": [[562, 1251], [728, 1251], [728, 1266], [562, 1266], [562, 1251]] }, { "id": 34, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[735, 885], [735, 871], [845, 871], [845, 885], [735, 885]] }, { "id": 35, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[482, 529], [482, 542], [399, 542], [399, 529], [482, 529]] }, { "id": 36, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[363, 451], [363, 529], [399, 529], [399, 542], [349, 542], [349, 529], [349, 451], [363, 451]] }, { "id": 37, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[349, 529], [349, 542], [265, 542], [265, 529], [349, 529]] }, { "id": 38, "type": "W", "h": 1.0, "lw": 6.0, "hw": 3.0, "pts": [[349, 401], [363, 401], [363, 451], [349, 451], [349, 401]] }, { "id": 39, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[595, 293], [581, 293], [581, 210], [595, 210], [595, 293]] }, { "id": 40, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[595, 542], [595, 652], [581, 652], [581, 542], [595, 542]] }, { "id": 41, "type": "glass_partition", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[971, 210], [985, 210], [985, 427], [971, 427], [971, 210]] }, { "id": 42, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[1358, 326], [1372, 326], [1372, 427], [1358, 427], [1358, 326]] }, { "id": 43, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[1722, 587], [1639, 587], [1639, 573], [1722, 573], [1722, 587]] }, { "id": 44, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[1627, 587], [1539, 587], [1539, 573], [1627, 573], [1627, 491], [1639, 491], [1639, 587], [1627, 587]] }, { "id": 45, "type": "W", "h": 1.0, "lw": 6.0, "hw": 3.0, "pts": [[1627, 491], [1627, 441], [1639, 441], [1639, 491], [1627, 491]] }, { "id": 46, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[1539, 587], [1455, 587], [1455, 573], [1539, 573], [1539, 587]] }, { "id": 47, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[1358, 587], [1372, 587], [1372, 698], [1358, 698], [1358, 587]] }, { "id": 48, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[1221, 871], [1221, 885], [1111, 885], [1111, 871], [1221, 871]] }, { "id": 49, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[894, 661], [1061, 661], [1061, 675], [894, 675], [894, 661]] }, { "id": 50, "type": "D", "h": 2.5, "lw": 7.0, "hw": 0.0, "pts": [[1711, 1133], [1627, 1133], [1627, 1119], [1711, 1119], [1711, 1133]] }, { "id": 51, "type": "D", "h": 2.5, "lw": 7.0, "hw": 0.0, "pts": [[325, 1133], [242, 1133], [242, 1119], [325, 1119], [325, 1133]] }, { "id": 52, "type": "G", "h": 6.0, "lw": 1.0, "hw": 3.0, "pts": [[201, 529], [201, 416], [215, 416], [215, 529], [201, 529]] }, { "id": 53, "type": "G", "h": 6.0, "lw": 1.0, "hw": 3.0, "pts": [[201, 344], [201, 243], [215, 243], [215, 344], [201, 344]] }, { "id": 54, "type": "G", "h": 6.0, "lw": 1.0, "hw": 3.0, "pts": [[215, 1151], [215, 1266], [430, 1266], [430, 1281], [201, 1281], [201, 1266], [201, 1151], [215, 1151]] }, { "id": 55, "type": "G", "h": 6.0, "lw": 1.0, "hw": 3.0, "pts": [[1753, 1281], [1524, 1281], [1524, 1266], [1739, 1266], [1739, 1151], [1753, 1151], [1753, 1266], [1753, 1281]] }, { "id": 56, "type": "G", "h": 6.0, "lw": 1.0, "hw": 3.0, "pts": [[1753, 573], [1739, 573], [1739, 475], [1753, 475], [1753, 573]] }, { "id": 57, "type": "G", "h": 5.0, "lw": 2.0, "hw": 3.0, "pts": [[349, 196], [349, 210], [242, 210], [242, 196], [349, 196]] }];
+    const LAYOUT_FEATURES = [{ "id": 0, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[858, 675], [858, 1266], [911, 1266], [911, 1281], [845, 1281], [845, 1266], [728, 1266], [728, 1251], [845, 1251], [845, 1156], [830, 1156], [830, 1124], [845, 1124], [845, 711], [825, 711], [825, 675], [825, 661], [894, 661], [894, 675], [858, 675]] }, { "id": 1, "type": "W", "h": 4.6667, "lw": 0.0, "hw": 2.5, "solidIntervals": [[4.6667, 7.5]], "pts": [[1045, 1281], [911, 1281], [911, 1266], [1045, 1266], [1045, 1281]] }, { "id": 2, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[1130, 675], [1130, 711], [1111, 711], [1111, 1124], [1124, 1124], [1124, 1156], [1111, 1156], [1111, 1251], [1226, 1251], [1226, 1266], [1111, 1266], [1111, 1281], [1045, 1281], [1045, 1266], [1096, 1266], [1096, 675], [1061, 675], [1061, 661], [1130, 661], [1130, 675]] }, { "id": 3, "type": "W", "h": 4.5, "lw": 2.5, "hw": 3.0, "pts": [[1226, 1266], [1226, 1251], [1393, 1251], [1393, 1266], [1226, 1266]] }, { "id": 4, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[1524, 1216], [1524, 1281], [1510, 1281], [1510, 1266], [1393, 1266], [1393, 1251], [1510, 1251], [1510, 1216], [1524, 1216]] }, { "id": 5, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[1510, 1216], [1510, 1133], [1524, 1133], [1524, 1216], [1510, 1216]] }, { "id": 6, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[1739, 1151], [1711, 1151], [1711, 1133], [1711, 1119], [1739, 1119], [1739, 1061], [1753, 1061], [1753, 1151], [1739, 1151]] }, { "id": 7, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[1627, 1133], [1510, 1133], [1510, 1119], [1627, 1119], [1627, 1133]] }, { "id": 8, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[1510, 1119], [1510, 1036], [1524, 1036], [1524, 1119], [1510, 1119]] }, { "id": 9, "type": "W", "h": 1.0, "lw": 6.0, "hw": 3.0, "pts": [[1739, 1061], [1739, 1011], [1753, 1011], [1753, 1061], [1739, 1061]] }, { "id": 10, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[1372, 698], [1372, 871], [1478, 871], [1478, 885], [1478, 939], [1739, 939], [1739, 892], [1753, 892], [1753, 1011], [1739, 1011], [1739, 953], [1524, 953], [1524, 1036], [1510, 1036], [1510, 953], [1478, 953], [1465, 953], [1465, 885], [1221, 885], [1221, 871], [1358, 871], [1358, 698], [1372, 698]] }, { "id": 11, "type": "W", "h": 4.5, "lw": 2.5, "hw": 3.0, "pts": [[1739, 892], [1739, 725], [1753, 725], [1753, 892], [1739, 892]] }, { "id": 12, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[1753, 573], [1753, 725], [1739, 725], [1739, 711], [1711, 711], [1711, 675], [1739, 675], [1739, 587], [1722, 587], [1722, 573], [1739, 573], [1753, 573]] }, { "id": 13, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[1753, 360], [1753, 475], [1739, 475], [1739, 441], [1576, 441], [1576, 427], [1739, 427], [1739, 360], [1753, 360]] }, { "id": 58, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[1439, 427], [1439, 573], [1455, 573], [1455, 587], [1358, 587], [1358, 573], [1425, 573], [1425, 441], [1358, 441], [1358, 427], [1439, 427]] }, { "id": 59, "type": "W", "h": 2.0, "lw": 8.0, "hw": 0.0, "pts": [[1576, 441], [1439, 441], [1439, 427], [1576, 427], [1576, 441]] }, { "id": 14, "type": "W", "h": 3.5, "lw": 3.5, "hw": 3.0, "pts": [[1739, 360], [1739, 259], [1753, 259], [1753, 360], [1739, 360]] }, { "id": 15, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[1753, 196], [1753, 259], [1739, 259], [1739, 243], [1711, 243], [1711, 210], [1372, 210], [1372, 326], [1358, 326], [1358, 210], [1307, 210], [1307, 196], [1739, 196], [1753, 196]] }, { "id": 16, "type": "W", "h": 4.5, "lw": 2.5, "hw": 3.0, "pts": [[1307, 210], [1140, 210], [1140, 196], [1307, 196], [1307, 210]] }, { "id": 17, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[1124, 210], [1124, 243], [1096, 243], [1096, 210], [858, 210], [858, 243], [830, 243], [830, 210], [811, 210], [811, 196], [1140, 196], [1140, 210], [1124, 210]] }, { "id": 18, "type": "W", "h": 4.5, "lw": 2.5, "hw": 3.0, "pts": [[811, 196], [811, 210], [644, 210], [644, 196], [811, 196]] }, { "id": 19, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[644, 196], [644, 210], [513, 210], [513, 196], [644, 196]] }, { "id": 20, "type": "W", "h": 4.5, "lw": 2.5, "hw": 3.0, "pts": [[513, 196], [513, 210], [430, 210], [430, 196], [513, 196]] }, { "id": 21, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[363, 210], [363, 311], [581, 311], [581, 293], [595, 293], [595, 311], [595, 326], [567, 326], [567, 529], [595, 529], [595, 542], [482, 542], [482, 529], [553, 529], [553, 326], [363, 326], [363, 401], [349, 401], [349, 210], [349, 196], [430, 196], [430, 210], [363, 210]] }, { "id": 22, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[201, 243], [201, 196], [242, 196], [242, 243], [201, 243]] }, { "id": 23, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[201, 416], [201, 344], [215, 344], [215, 416], [201, 416]] }, { "id": 24, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[215, 542], [215, 675], [242, 675], [242, 711], [215, 711], [215, 725], [201, 725], [201, 529], [215, 529], [265, 529], [265, 542], [215, 542]] }, { "id": 25, "type": "W", "h": 4.5, "lw": 2.5, "hw": 3.0, "pts": [[201, 725], [215, 725], [215, 892], [201, 892], [201, 725]] }, { "id": 26, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[595, 652], [595, 871], [735, 871], [735, 885], [491, 885], [491, 953], [477, 953], [444, 953], [444, 1036], [430, 1036], [430, 953], [215, 953], [215, 1011], [201, 1011], [201, 892], [215, 892], [215, 939], [477, 939], [477, 885], [477, 871], [581, 871], [581, 652], [595, 652]] }, { "id": 27, "type": "W", "h": 1.0, "lw": 6.0, "hw": 3.0, "pts": [[201, 1011], [215, 1011], [215, 1061], [201, 1061], [201, 1011]] }, { "id": 28, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[215, 1061], [215, 1119], [242, 1119], [242, 1133], [242, 1151], [215, 1151], [201, 1151], [201, 1061], [215, 1061]] }, { "id": 29, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[444, 1216], [444, 1251], [562, 1251], [562, 1266], [444, 1266], [444, 1281], [430, 1281], [430, 1216], [444, 1216]] }, { "id": 30, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[430, 1216], [430, 1133], [444, 1133], [444, 1216], [430, 1216]] }, { "id": 31, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[325, 1133], [325, 1119], [444, 1119], [444, 1133], [325, 1133]] }, { "id": 32, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[444, 1119], [430, 1119], [430, 1036], [444, 1036], [444, 1119]] }, { "id": 33, "type": "W", "h": 4.5, "lw": 2.5, "hw": 3.0, "pts": [[562, 1251], [728, 1251], [728, 1266], [562, 1266], [562, 1251]] }, { "id": 34, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[735, 885], [735, 871], [845, 871], [845, 885], [735, 885]] }, { "id": 35, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[482, 529], [482, 542], [399, 542], [399, 529], [482, 529]] }, { "id": 36, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[363, 451], [363, 529], [399, 529], [399, 542], [349, 542], [349, 529], [349, 451], [363, 451]] }, { "id": 37, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[349, 529], [349, 542], [265, 542], [265, 529], [349, 529]] }, { "id": 38, "type": "W", "h": 1.0, "lw": 6.0, "hw": 3.0, "pts": [[349, 401], [363, 401], [363, 451], [349, 451], [349, 401]] }, { "id": 39, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[595, 293], [581, 293], [581, 210], [595, 210], [595, 293]] }, { "id": 40, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[595, 542], [595, 652], [581, 652], [581, 542], [595, 542]] }, { "id": 41, "type": "glass_partition", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[971, 210], [985, 210], [985, 427], [971, 427], [971, 210]] }, { "id": 42, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[1358, 326], [1372, 326], [1372, 427], [1358, 427], [1358, 326]] }, { "id": 43, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[1722, 587], [1639, 587], [1639, 573], [1722, 573], [1722, 587]] }, { "id": 44, "type": "", "h": 10.0, "lw": 0.0, "hw": 0.0, "pts": [[1627, 587], [1539, 587], [1539, 573], [1627, 573], [1627, 491], [1639, 491], [1639, 587], [1627, 587]] }, { "id": 45, "type": "W", "h": 1.0, "lw": 6.0, "hw": 3.0, "pts": [[1627, 491], [1627, 441], [1639, 441], [1639, 491], [1627, 491]] }, { "id": 46, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[1539, 587], [1455, 587], [1455, 573], [1539, 573], [1539, 587]] }, { "id": 47, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[1358, 587], [1372, 587], [1372, 698], [1358, 698], [1358, 587]] }, { "id": 48, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[1221, 871], [1221, 885], [1111, 885], [1111, 871], [1221, 871]] }, { "id": 49, "type": "D", "h": 7.0, "lw": 0.0, "hw": 3.0, "pts": [[894, 661], [1061, 661], [1061, 675], [894, 675], [894, 661]] }, { "id": 50, "type": "D", "h": 2.5, "lw": 7.0, "hw": 0.0, "pts": [[1711, 1133], [1627, 1133], [1627, 1119], [1711, 1119], [1711, 1133]] }, { "id": 51, "type": "D", "h": 2.5, "lw": 7.0, "hw": 0.0, "pts": [[325, 1133], [242, 1133], [242, 1119], [325, 1119], [325, 1133]] }, { "id": 52, "type": "G", "h": 6.0, "lw": 1.0, "hw": 3.0, "pts": [[201, 529], [201, 416], [215, 416], [215, 529], [201, 529]] }, { "id": 53, "type": "G", "h": 6.0, "lw": 1.0, "hw": 3.0, "pts": [[201, 344], [201, 243], [215, 243], [215, 344], [201, 344]] }, { "id": 54, "type": "G", "h": 6.0, "lw": 1.0, "hw": 3.0, "pts": [[215, 1151], [215, 1266], [430, 1266], [430, 1281], [201, 1281], [201, 1266], [201, 1151], [215, 1151]] }, { "id": 55, "type": "G", "h": 6.0, "lw": 1.0, "hw": 3.0, "pts": [[1753, 1281], [1524, 1281], [1524, 1266], [1739, 1266], [1739, 1151], [1753, 1151], [1753, 1266], [1753, 1281]] }, { "id": 56, "type": "G", "h": 6.0, "lw": 1.0, "hw": 3.0, "pts": [[1753, 573], [1739, 573], [1739, 475], [1753, 475], [1753, 573]] }, { "id": 57, "type": "G", "h": 5.0, "lw": 2.0, "hw": 3.0, "pts": [[349, 196], [349, 210], [242, 210], [242, 196], [349, 196]] }];
 
     // Windows exact centerlines, sills, and heights aligned to the layout polygons
     const windowSpecs = [
-      { a: [911, 1274], b: [1045, 1274], sill: 0.0, height: 6.0 },                          // Stair south window (6.0 ft tall matching 3rd floor)
+      { a: [911, 1274], b: [1045, 1274], sill: 0.0, height: 4.6667, studioOnly: true },           // Stair south lower window (up to slab-bottom 4.667 ft, Studio only)
+      { a: [911, 1274], b: [1045, 1274], sill: 7.5, height: 2.5, studioOnly: true },              // Stair south upper window (7.5 ft up to roof 10 ft, Studio only)
       { a: [1226, 1258], b: [1393, 1258], sill: 2.5, height: 4.5, frameDepth: .07 },          // Room 2 south window (#3)
       { a: [1746, 1011], b: [1746, 1061], sill: 6.0, height: 1.0 },                         // Bathroom-6 east window (#9)
       { a: [1746, 725], b: [1746, 892], sill: 2.5, height: 4.5 },                           // Room 4 east window (#11)
@@ -366,7 +377,8 @@
         [1.0, 2.0],
         [2.0, 2.5],
         [2.5, 3.5],
-        [3.5, 5.0],
+        [3.5, 4.6667],
+        [4.6667, 5.0],
         [5.0, 6.0],
         [6.0, 7.0],
         [7.0, 7.5],
@@ -627,10 +639,12 @@
 
     // Window glass and frames
     const windows = new THREE.Group(); fixedGroup.add(windows);
+    const studioOnlyWindowFrames = [];
     const windowFrameMat = new THREE.MeshStandardMaterial({ color: '#faf8f0', roughness: .48 });
     for (const w of windowSpecs) {
       const [x1, z1] = world(...w.a), [x2, z2] = world(...w.b), dx = x2 - x1, dz = z2 - z1, len = Math.hypot(dx, dz), angle = -Math.atan2(dz, dx);
       const frame = new THREE.Group(); frame.position.set((x1 + x2) / 2, 0, (z1 + z2) / 2); frame.rotation.y = angle; windows.add(frame);
+      if (w.studioOnly) studioOnlyWindowFrames.push(frame);
       const pane = new THREE.Mesh(new THREE.BoxGeometry(Math.max(.2, len - .12), w.height - .10, .07), glassMat); pane.position.y = w.sill + w.height / 2; frame.add(pane);
 
       // Privacy backing plate for Grass & Sky mode (unable to view inside, matching other floors)
@@ -1643,9 +1657,226 @@
     window.furnitureGroup = furnitureGroup;
 
     // --- DEVELOP FURNITURE HERE ---
-    // Example:
-    // const bed = new THREE.Group();
-    // furnitureGroup.add(bed);
+    (function buildInteriorFurniture() {
+      const woodLightMat = new THREE.MeshStandardMaterial({ color: '#c8a97e', roughness: 0.58, metalness: 0.04 });
+      const woodDarkMat = new THREE.MeshStandardMaterial({ color: '#4a3728', roughness: 0.52, metalness: 0.06 });
+      const cabDoorMat = new THREE.MeshStandardMaterial({ color: '#e6dfd3', roughness: 0.45, metalness: 0.05 });
+      const handleMat = new THREE.MeshStandardMaterial({ color: '#2b2d30', roughness: 0.35, metalness: 0.75 });
+      const showcaseGlassMat = new THREE.MeshPhysicalMaterial({
+        color: '#d9edf7',
+        transparent: true,
+        opacity: 0.32,
+        roughness: 0.08,
+        metalness: 0.05,
+        depthWrite: false,
+        side: THREE.DoubleSide
+      });
+      const decorMat1 = new THREE.MeshStandardMaterial({ color: '#c46d53', roughness: 0.45 });
+      const decorMat2 = new THREE.MeshStandardMaterial({ color: '#507d79', roughness: 0.40 });
+      const decorMat3 = new THREE.MeshStandardMaterial({ color: '#e0c07a', roughness: 0.35, metalness: 0.35 });
+
+      // 1. WALL SHOWCASE (Image 1 position: back wall recess right of glass partition, X: 28.46..32.69, Z: 0.52..1.71, Y: 0..10.0)
+      const showcaseGroup = new THREE.Group();
+      showcaseGroup.name = 'wallShowcaseUnit';
+      const scX0 = 28.47, scX1 = 32.68, scZ0 = 0.52, scZ1 = 1.70;
+      const scW = scX1 - scX0, scD = scZ1 - scZ0;
+      const scCX = (scX0 + scX1) / 2, scCZ = (scZ0 + scZ1) / 2;
+
+      // Lower 2 ft closed cabinet (Y = 0 .. 2.0)
+      const scPlinth = new THREE.Mesh(new THREE.BoxGeometry(scW, 0.25, scD - 0.08), woodDarkMat);
+      scPlinth.position.set(scCX, 0.125, scCZ - 0.04);
+      showcaseGroup.add(scPlinth);
+
+      const scLowerBody = new THREE.Mesh(new THREE.BoxGeometry(scW, 1.65, scD - 0.06), woodLightMat);
+      scLowerBody.position.set(scCX, 0.25 + 1.65 / 2, scCZ - 0.03);
+      showcaseGroup.add(scLowerBody);
+
+      const scCounter = new THREE.Mesh(new THREE.BoxGeometry(scW + 0.02, 0.10, scD + 0.02), woodDarkMat);
+      scCounter.position.set(scCX, 1.95, scCZ);
+      showcaseGroup.add(scCounter);
+
+      // 3 lower cabinet doors + handles facing +Z
+      const scDoorW = (scW - 0.08) / 3;
+      for (let i = 0; i < 3; i++) {
+        const dx = scX0 + 0.04 + (i + 0.5) * scDoorW;
+        const door = new THREE.Mesh(new THREE.BoxGeometry(scDoorW - 0.03, 1.56, 0.05), cabDoorMat);
+        door.position.set(dx, 1.08, scZ1 - 0.025);
+        showcaseGroup.add(door);
+
+        const hnd = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.28, 0.04), handleMat);
+        hnd.position.set(dx + (i === 2 ? -scDoorW * 0.34 : scDoorW * 0.34), 1.50, scZ1 + 0.015);
+        showcaseGroup.add(hnd);
+      }
+
+      // Microwave open space (Y = 2.0 .. 3.6) with back/side framing & 3D microwave
+      const mwSpaceH = 1.60;
+      const scBackPanel = new THREE.Mesh(new THREE.BoxGeometry(scW, 8.0, 0.05), woodLightMat);
+      scBackPanel.position.set(scCX, 6.0, scZ0 + 0.025);
+      showcaseGroup.add(scBackPanel);
+
+      for (const sx of [scX0 + 0.04, scX1 - 0.04]) {
+        const side = new THREE.Mesh(new THREE.BoxGeometry(0.08, 8.0, scD), woodLightMat);
+        side.position.set(sx, 6.0, scCZ);
+        showcaseGroup.add(side);
+      }
+
+      // Microwave oven sitting inside the microwave space at Y = 2.0
+      const mwGroup = new THREE.Group();
+      const mwBodyMat = new THREE.MeshStandardMaterial({ color: '#1f2226', roughness: 0.35, metalness: 0.55 });
+      const mwScreenMat = new THREE.MeshStandardMaterial({ color: '#101418', roughness: 0.15, metalness: 0.70 });
+      const mwBody = new THREE.Mesh(new THREE.BoxGeometry(1.75, 1.02, 0.92), mwBodyMat);
+      mwBody.position.set(scCX, 2.0 + 0.51, scCZ - 0.04);
+      mwGroup.add(mwBody);
+      const mwGlass = new THREE.Mesh(new THREE.BoxGeometry(1.20, 0.78, 0.04), mwScreenMat);
+      mwGlass.position.set(scCX - 0.18, 2.0 + 0.51, scCZ + 0.43);
+      mwGroup.add(mwGlass);
+      const mwHandle = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.56, 0.05), handleMat);
+      mwHandle.position.set(scCX + 0.34, 2.0 + 0.51, scCZ + 0.46);
+      mwGroup.add(mwHandle);
+      const mwPad = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.78, 0.03), new THREE.MeshStandardMaterial({ color: '#2b3036', roughness: 0.4 }));
+      mwPad.position.set(scCX + 0.62, 2.0 + 0.51, scCZ + 0.43);
+      mwGroup.add(mwPad);
+      showcaseGroup.add(mwGroup);
+
+      // Upper Glass Showcase from Y = 3.6 up to roof Y = 10.0
+      const scMidShelf = new THREE.Mesh(new THREE.BoxGeometry(scW - 0.16, 0.08, scD), woodDarkMat);
+      scMidShelf.position.set(scCX, 3.60, scCZ);
+      showcaseGroup.add(scMidShelf);
+
+      const scTopRail = new THREE.Mesh(new THREE.BoxGeometry(scW, 0.10, scD), woodLightMat);
+      scTopRail.position.set(scCX, 9.95, scCZ);
+      showcaseGroup.add(scTopRail);
+
+      for (const sy of [5.15, 6.75, 8.35]) {
+        const shelf = new THREE.Mesh(new THREE.BoxGeometry(scW - 0.16, 0.06, scD - 0.12), woodLightMat);
+        shelf.position.set(scCX, sy, scCZ - 0.04);
+        showcaseGroup.add(shelf);
+      }
+
+      // Showcase decorative items inside shelves
+      const v1 = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.22, 0.62, 16), decorMat1);
+      v1.position.set(scCX - 0.9, 5.15 + 0.34, scCZ);
+      showcaseGroup.add(v1);
+      const v2 = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.14, 0.50, 16), decorMat2);
+      v2.position.set(scCX + 0.85, 6.75 + 0.28, scCZ);
+      showcaseGroup.add(v2);
+      const v3 = new THREE.Mesh(new THREE.SphereGeometry(0.24, 16, 12), decorMat3);
+      v3.position.set(scCX, 8.35 + 0.27, scCZ);
+      showcaseGroup.add(v3);
+
+      // 2 Tall Glass Showcase Doors (Y = 3.64 .. 9.90)
+      const gDoorW = (scW - 0.18) / 2;
+      const gDoorH = 9.90 - 3.64;
+      const gDoorCY = 3.64 + gDoorH / 2;
+      for (let i = 0; i < 2; i++) {
+        const dx = scX0 + 0.09 + (i + 0.5) * gDoorW;
+        const pane = new THREE.Mesh(new THREE.BoxGeometry(gDoorW - 0.14, gDoorH - 0.14, 0.03), showcaseGlassMat);
+        pane.position.set(dx, gDoorCY, scZ1 - 0.03);
+        showcaseGroup.add(pane);
+
+        // Door frame stiles & rails
+        for (const side of [-1, 1]) {
+          const stile = new THREE.Mesh(new THREE.BoxGeometry(0.06, gDoorH, 0.06), woodDarkMat);
+          stile.position.set(dx + side * (gDoorW / 2 - 0.04), gDoorCY, scZ1 - 0.03);
+          showcaseGroup.add(stile);
+        }
+        for (const ry of [3.67, 9.87]) {
+          const rail = new THREE.Mesh(new THREE.BoxGeometry(gDoorW - 0.02, 0.06, 0.06), woodDarkMat);
+          rail.position.set(dx, ry, scZ1 - 0.03);
+          showcaseGroup.add(rail);
+        }
+        const gHnd = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.55, 0.04), handleMat);
+        gHnd.position.set(dx + (i === 0 ? gDoorW * 0.38 : -gDoorW * 0.38), 5.4, scZ1 + 0.015);
+        showcaseGroup.add(gHnd);
+      }
+      furnitureGroup.add(showcaseGroup);
+
+      // 2. TV WALL UNIT (Image 2 position: Bathroom-7 East recess, X: 13.40..14.41, Z: 4.76..12.14, Y: 0..10.0)
+      const tvUnitGroup = new THREE.Group();
+      tvUnitGroup.name = 'tvWallUnit';
+      const tvX0 = 13.40, tvX1 = 14.41, tvZ0 = 4.76, tvZ1 = 12.14;
+      const tvD = tvX1 - tvX0, tvW = tvZ1 - tvZ0;
+      const tvCX = (tvX0 + tvX1) / 2, tvCZ = (tvZ0 + tvZ1) / 2;
+
+      // Below cabinet: 1.5 ft height (Y = 0 .. 1.5)
+      const tvPlinth = new THREE.Mesh(new THREE.BoxGeometry(tvD - 0.08, 0.20, tvW), woodDarkMat);
+      tvPlinth.position.set(tvCX - 0.04, 0.10, tvCZ);
+      tvUnitGroup.add(tvPlinth);
+
+      const tvCabBody = new THREE.Mesh(new THREE.BoxGeometry(tvD - 0.06, 1.22, tvW), woodLightMat);
+      tvCabBody.position.set(tvCX - 0.03, 0.20 + 1.22 / 2, tvCZ);
+      tvUnitGroup.add(tvCabBody);
+
+      const tvCabTop = new THREE.Mesh(new THREE.BoxGeometry(tvD + 0.02, 0.08, tvW + 0.02), woodDarkMat);
+      tvCabTop.position.set(tvCX, 1.46, tvCZ);
+      tvUnitGroup.add(tvCabTop);
+
+      // 4 Drawer / Door fronts facing +X
+      const tvDoorW = (tvW - 0.10) / 4;
+      for (let i = 0; i < 4; i++) {
+        const dz = tvZ0 + 0.05 + (i + 0.5) * tvDoorW;
+        const front = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.12, tvDoorW - 0.04), cabDoorMat);
+        front.position.set(tvX1 - 0.025, 0.81, dz);
+        tvUnitGroup.add(front);
+
+        const hnd = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.03, 0.30), handleMat);
+        hnd.position.set(tvX1 + 0.015, 1.18, dz);
+        tvUnitGroup.add(hnd);
+      }
+
+      // 2 Narrow Corner Showpiece Racks over the cabinet up to the roof (Y = 1.5 .. 10.0)
+      const rackW = 1.10;
+      const rackCentersZ = [tvZ0 + rackW / 2, tvZ1 - rackW / 2];
+      for (const rz of rackCentersZ) {
+        const rBack = new THREE.Mesh(new THREE.BoxGeometry(0.05, 8.50, rackW), woodLightMat);
+        rBack.position.set(tvX0 + 0.025, 1.50 + 4.25, rz);
+        tvUnitGroup.add(rBack);
+
+        for (const side of [-1, 1]) {
+          const rSide = new THREE.Mesh(new THREE.BoxGeometry(tvD - 0.04, 8.50, 0.06), woodDarkMat);
+          rSide.position.set(tvCX - 0.02, 1.50 + 4.25, rz + side * (rackW / 2 - 0.03));
+          tvUnitGroup.add(rSide);
+        }
+        const rTop = new THREE.Mesh(new THREE.BoxGeometry(tvD - 0.04, 0.08, rackW), woodDarkMat);
+        rTop.position.set(tvCX - 0.02, 9.96, rz);
+        tvUnitGroup.add(rTop);
+
+        for (let s = 0; s < 4; s++) {
+          const sy = 3.20 + s * 1.70;
+          const rShelf = new THREE.Mesh(new THREE.BoxGeometry(tvD - 0.08, 0.06, rackW - 0.12), woodLightMat);
+          rShelf.position.set(tvCX - 0.04, sy, rz);
+          tvUnitGroup.add(rShelf);
+
+          // Small showpiece on alternating shelves
+          const spMat = s % 2 === 0 ? decorMat1 : (s === 1 ? decorMat2 : decorMat3);
+          const sp = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.16, 0.44, 14), spMat);
+          sp.position.set(tvCX, sy + 0.25, rz);
+          tvUnitGroup.add(sp);
+        }
+      }
+
+      // 32" Wall-Mounted TV in the center-middle of the wall (32" 16:9 => 2.32 ft wide x 1.31 ft tall)
+      const tvW32 = 2.32, tvH32 = 1.31, tvMountY = 5.0;
+      const tvMountBracket = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.55, 0.70), handleMat);
+      tvMountBracket.position.set(tvX0 + 0.07, tvMountY, tvCZ);
+      tvUnitGroup.add(tvMountBracket);
+
+      const tvBezel = new THREE.Mesh(
+        new THREE.BoxGeometry(0.10, tvH32, tvW32),
+        new THREE.MeshStandardMaterial({ color: '#141618', roughness: 0.35, metalness: 0.50 })
+      );
+      tvBezel.position.set(tvX0 + 0.18, tvMountY, tvCZ);
+      tvUnitGroup.add(tvBezel);
+
+      const tvScreen = new THREE.Mesh(
+        new THREE.BoxGeometry(0.02, tvH32 - 0.10, tvW32 - 0.10),
+        new THREE.MeshStandardMaterial({ color: '#090c10', roughness: 0.12, metalness: 0.85 })
+      );
+      tvScreen.position.set(tvX0 + 0.23, tvMountY, tvCZ);
+      tvUnitGroup.add(tvScreen);
+
+      furnitureGroup.add(tvUnitGroup);
+    })();
 
     // =========================================================================
     // Basemap: Grass & Sky vs Studio Materials
@@ -4413,6 +4644,7 @@
         secondFloorGroup.position.y = 22.0;
         secondFloorGroup.visible = true;
         secondFloorStairOpaque.visible = true;
+        for (const f of studioOnlyWindowFrames) f.visible = false;
         if (window.exteriorPipesGroup) window.exteriorPipesGroup.visible = true;
         groundFloorGroup.visible = true;
         firstFloorGroup.visible = true;
@@ -4547,6 +4779,7 @@
         thirdFloorCurrentGroup.visible = false;
         thirdFloorCompleteGroup.visible = false;
         secondFloorStairOpaque.visible = false;
+        for (const f of studioOnlyWindowFrames) f.visible = true;
         if (window.exteriorPipesGroup) window.exteriorPipesGroup.visible = false;
 
         scene.background = studioBgColor;
@@ -4596,6 +4829,7 @@
         secondFloorGroup.position.y = 22.0;
         secondFloorGroup.visible = true;
         secondFloorStairOpaque.visible = true;
+        for (const f of studioOnlyWindowFrames) f.visible = false;
         if (window.exteriorPipesGroup) window.exteriorPipesGroup.visible = true;
 
         wallMat[0].color.set('#eeeae1');
