@@ -2428,6 +2428,102 @@
       }
 
       furnitureGroup.add(sofaGroup);
+
+      // 8. Bedroom Beds (Rooms 1, 2, 3, 4)
+      const bedsGroup = new THREE.Group();
+      bedsGroup.name = 'bedroomBeds';
+      const bedFrameMat = new THREE.MeshStandardMaterial({ color: '#4a3728', roughness: 0.54, metalness: 0.05 });
+      const bedHeadPanelMat = new THREE.MeshStandardMaterial({ color: '#6b5344', roughness: 0.68 });
+      const mattressMat = new THREE.MeshStandardMaterial({ color: '#f5f3ee', roughness: 0.85 });
+      const duvetMat = new THREE.MeshStandardMaterial({ color: '#7a8a8e', roughness: 0.88 });
+      const duvetFoldMat = new THREE.MeshStandardMaterial({ color: '#e9e6df', roughness: 0.84 });
+      const bedPillowMat = new THREE.MeshStandardMaterial({ color: '#faf8f4', roughness: 0.86 });
+      const bedAccentPillowMat = new THREE.MeshStandardMaterial({ color: '#b88655', roughness: 0.82 });
+
+      function addBed(cx, cz, width, length, headDir) {
+        const bed = new THREE.Group();
+        bed.position.set(cx, 0, cz);
+        bed.rotation.y = headDir === 'E' ? Math.PI : 0;
+
+        const baseH = 0.95;
+        const headT = 0.26;
+        const headH = 3.25;
+        const mattH = 0.62;
+        const mattL = length - headT - 0.08;
+        const mattW = width - 0.24;
+        const mattX = headT / 2 + 0.02;
+
+        // Recessed plinth & wood frame base
+        const plinth = new THREE.Mesh(new THREE.BoxGeometry(length - 0.35, 0.25, width - 0.35), bedFrameMat);
+        plinth.position.set(0, 0.125, 0);
+        bed.add(plinth);
+
+        const base = new THREE.Mesh(new THREE.BoxGeometry(length, baseH - 0.25, width), bedFrameMat);
+        base.position.set(0, 0.25 + (baseH - 0.25) / 2, 0);
+        bed.add(base);
+
+        // Headboard at -X end
+        const hbFrame = new THREE.Mesh(new THREE.BoxGeometry(headT, headH, width), bedFrameMat);
+        hbFrame.position.set(-length / 2 + headT / 2, headH / 2, 0);
+        bed.add(hbFrame);
+
+        const hbPanel = new THREE.Mesh(new THREE.BoxGeometry(0.08, headH - baseH - 0.22, width - 0.36), bedHeadPanelMat);
+        hbPanel.position.set(-length / 2 + headT + 0.02, baseH + (headH - baseH - 0.12) / 2, 0);
+        bed.add(hbPanel);
+
+        // Mattress
+        const matt = new THREE.Mesh(new THREE.BoxGeometry(mattL, mattH, mattW), mattressMat);
+        matt.position.set(mattX, baseH + mattH / 2, 0);
+        bed.add(matt);
+
+        // Duvet / Blanket covering lower ~62% toward foot (+X)
+        const duvetL = mattL * 0.62;
+        const duvetX = mattX + (mattL - duvetL) / 2 + 0.02;
+        const duvet = new THREE.Mesh(new THREE.BoxGeometry(duvetL, 0.14, mattW + 0.12), duvetMat);
+        duvet.position.set(duvetX, baseH + mattH + 0.05, 0);
+        bed.add(duvet);
+
+        // Side drape of duvet
+        const drapeL = duvetL;
+        for (const sz of [-(mattW + 0.10) / 2, (mattW + 0.10) / 2]) {
+          const drape = new THREE.Mesh(new THREE.BoxGeometry(drapeL, 0.42, 0.05), duvetMat);
+          drape.position.set(duvetX, baseH + mattH - 0.14, sz);
+          bed.add(drape);
+        }
+
+        // Folded white sheet trim at top of duvet
+        const fold = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.16, mattW + 0.14), duvetFoldMat);
+        fold.position.set(duvetX - duvetL / 2 + 0.22, baseH + mattH + 0.06, 0);
+        bed.add(fold);
+
+        // Two sleeping pillows + two accent cushions at headside (-X)
+        const pilX = -length / 2 + headT + 0.72;
+        for (const pz of [-mattW * 0.24, mattW * 0.24]) {
+          const pil = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.26, mattW * 0.40), bedPillowMat);
+          pil.position.set(pilX, baseH + mattH + 0.13, pz);
+          pil.rotation.z = -0.14;
+          bed.add(pil);
+
+          const accent = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.65, mattW * 0.24), bedAccentPillowMat);
+          accent.position.set(pilX + 0.48, baseH + mattH + 0.30, pz);
+          accent.rotation.z = -0.22;
+          bed.add(accent);
+        }
+
+        bedsGroup.add(bed);
+      }
+
+      const bedLen = 6.70, bedWid = 5.60;
+      // Room 1 (NW): head on West wall (X = 0.5474), flush to South wall (Z = 27.1168)
+      addBed(0.5474 + bedLen / 2, 27.1168 - bedWid / 2, bedWid, bedLen, 'W');
+      // Room 2 (SW): head on East staircase wall pilaster (X = 22.9927), flush to South wall (Z = 38.5036)
+      addBed(22.9927 - bedLen / 2, 38.5036 - bedWid / 2, bedWid, bedLen, 'E');
+      // Room 3 (SE): head on West staircase wall pilaster (X = 33.7226), flush to South wall (Z = 38.5036)
+      addBed(33.7226 + bedLen / 2, 38.5036 - bedWid / 2, bedWid, bedLen, 'W');
+      // Room 4 (NE): head on East wall (X = 56.1679), flush to South wall (Z = 27.1168)
+      addBed(56.1679 - bedLen / 2, 27.1168 - bedWid / 2, bedWid, bedLen, 'E');
+
+      furnitureGroup.add(bedsGroup);
     })();
 
     // =========================================================================
