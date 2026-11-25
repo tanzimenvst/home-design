@@ -140,6 +140,35 @@
       transform: none;
     }
 
+    /* Bottom Right Copyright Badge & MapLibre Cleanup */
+    .copyright-badge {
+      position: fixed;
+      bottom: 14px;
+      right: 14px;
+      padding: 4px 10px;
+      background: rgba(16, 22, 19, 0.88);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 6px;
+      color: #d6e2da;
+      font: 600 11px Inter, ui-sans-serif, system-ui, sans-serif;
+      letter-spacing: 0.02em;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+      z-index: 100;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .maplibregl-ctrl-attrib {
+      display: none !important;
+    }
+
+    .maplibregl-ctrl-bottom-right {
+      bottom: 36px !important;
+      right: 4px !important;
+    }
+
     @media (max-width: 600px) {
 
       .control-bar,
@@ -178,6 +207,7 @@
 <body>
   <div id="view"></div>
   <div id="map" style="display: none;"></div>
+  <div class="copyright-badge" id="copyright-badge">&copy; Tanzim, 2026</div>
   <nav class="sidebar-v" id="control-bar">
     <!-- Part 1: Interior Layout & Layers -->
     <div class="sidebar-part">
@@ -2032,6 +2062,140 @@
       tvUnitGroup.add(tvScreen);
 
       furnitureGroup.add(tvUnitGroup);
+
+      // 3. WASHING MACHINE (Back-Right dining corner: X ~ 41.13, Z ~ 1.58, facing +Z)
+      const wmGroup = new THREE.Group();
+      wmGroup.name = 'washingMachine';
+      const wmW = 2.05, wmH = 2.80, wmD = 2.00;
+      const wmCX = 42.25 - wmW / 2 - 0.06; // 41.165 ft (tucked against kitchen west wall 42.26)
+      const wmCZ = 0.511 + wmD / 2 + 0.06; // 1.571 ft (tucked against back wall 0.511)
+      const wmBodyMat = new THREE.MeshStandardMaterial({ color: '#f3f4f6', roughness: 0.28, metalness: 0.15 });
+      const wmTrimMat = new THREE.MeshStandardMaterial({ color: '#2b2f36', roughness: 0.35, metalness: 0.55 });
+      const wmRimMat = new THREE.MeshStandardMaterial({ color: '#c4cad0', roughness: 0.22, metalness: 0.85 });
+      const wmDrumGlassMat = new THREE.MeshPhysicalMaterial({
+        color: '#1b242c',
+        transparent: true,
+        opacity: 0.78,
+        roughness: 0.10,
+        metalness: 0.35
+      });
+
+      const wmBody = new THREE.Mesh(new THREE.BoxGeometry(wmW, wmH, wmD), wmBodyMat);
+      wmBody.position.set(wmCX, wmH / 2, wmCZ);
+      wmGroup.add(wmBody);
+
+      // Top control fascia & detergent drawer
+      const wmFascia = new THREE.Mesh(new THREE.BoxGeometry(wmW - 0.06, 0.42, 0.04), new THREE.MeshStandardMaterial({ color: '#e5e7eb', roughness: 0.35 }));
+      wmFascia.position.set(wmCX, wmH - 0.25, wmCZ + wmD / 2 + 0.01);
+      wmGroup.add(wmFascia);
+
+      const wmDial = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.06, 18), wmRimMat);
+      wmDial.rotation.x = Math.PI / 2;
+      wmDial.position.set(wmCX, wmH - 0.25, wmCZ + wmD / 2 + 0.04);
+      wmGroup.add(wmDial);
+
+      const wmLed = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.16, 0.03), new THREE.MeshStandardMaterial({ color: '#11161b', roughness: 0.2 }));
+      wmLed.position.set(wmCX + 0.50, wmH - 0.25, wmCZ + wmD / 2 + 0.025);
+      wmGroup.add(wmLed);
+
+      // Front circular drum door
+      const wmRim = new THREE.Mesh(new THREE.TorusGeometry(0.60, 0.075, 14, 28), wmRimMat);
+      wmRim.position.set(wmCX, 1.32, wmCZ + wmD / 2 + 0.02);
+      wmGroup.add(wmRim);
+
+      const wmGlass = new THREE.Mesh(new THREE.CylinderGeometry(0.56, 0.56, 0.06, 24), wmDrumGlassMat);
+      wmGlass.rotation.x = Math.PI / 2;
+      wmGlass.position.set(wmCX, 1.32, wmCZ + wmD / 2 + 0.02);
+      wmGroup.add(wmGlass);
+
+      furnitureGroup.add(wmGroup);
+
+      // 4. 6-CHAIR GLASS-TOP DINING TABLE SET (Centered in dining area: X = 35.6, Z = 5.4)
+      const diningGroup = new THREE.Group();
+      diningGroup.name = 'diningTableSet';
+      const dtCX = 35.6, dtCZ = 5.4;
+      const dtLen = 5.4, dtWid = 3.0, dtH = 2.48;
+      const dtFrameMat = new THREE.MeshStandardMaterial({ color: '#2b241f', roughness: 0.42, metalness: 0.35 });
+      const dtGlassMat = new THREE.MeshPhysicalMaterial({
+        color: '#cce6ec',
+        transparent: true,
+        opacity: 0.44,
+        roughness: 0.06,
+        metalness: 0.08,
+        depthWrite: false,
+        side: THREE.DoubleSide
+      });
+      const chairWoodMat = new THREE.MeshStandardMaterial({ color: '#3b2d23', roughness: 0.50 });
+      const chairCushionMat = new THREE.MeshStandardMaterial({ color: '#d8d2c7', roughness: 0.72 });
+
+      // Glass tabletop & perimeter support frame
+      const dtGlass = new THREE.Mesh(new THREE.BoxGeometry(dtLen, 0.06, dtWid), dtGlassMat);
+      dtGlass.position.set(dtCX, dtH, dtCZ);
+      diningGroup.add(dtGlass);
+
+      const dtApronX = dtLen - 0.36, dtApronZ = dtWid - 0.36;
+      for (const sz of [-1, 1]) {
+        const rail = new THREE.Mesh(new THREE.BoxGeometry(dtApronX, 0.10, 0.08), dtFrameMat);
+        rail.position.set(dtCX, dtH - 0.08, dtCZ + sz * (dtApronZ / 2));
+        diningGroup.add(rail);
+      }
+      for (const sx of [-1, 1]) {
+        const rail = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.10, dtApronZ), dtFrameMat);
+        rail.position.set(dtCX + sx * (dtApronX / 2), dtH - 0.08, dtCZ);
+        diningGroup.add(rail);
+      }
+      // 4 Table legs
+      for (const sx of [-1, 1]) {
+        for (const sz of [-1, 1]) {
+          const leg = new THREE.Mesh(new THREE.BoxGeometry(0.14, dtH - 0.04, 0.14), dtFrameMat);
+          leg.position.set(dtCX + sx * (dtApronX / 2 - 0.03), (dtH - 0.04) / 2, dtCZ + sz * (dtApronZ / 2 - 0.03));
+          diningGroup.add(leg);
+        }
+      }
+
+      // Helper to build a dining chair at (cx, cz) rotated by rotY (backrest on -Z local)
+      function addDiningChair(cx, cz, rotY) {
+        const ch = new THREE.Group();
+        ch.position.set(cx, 0, cz);
+        ch.rotation.y = rotY;
+        const cW = 1.38, cD = 1.38, seatY = 1.48, backH = 1.55;
+
+        const seatFrame = new THREE.Mesh(new THREE.BoxGeometry(cW, 0.08, cD), chairWoodMat);
+        seatFrame.position.set(0, seatY - 0.04, 0);
+        ch.add(seatFrame);
+
+        const cushion = new THREE.Mesh(new THREE.BoxGeometry(cW - 0.08, 0.12, cD - 0.08), chairCushionMat);
+        cushion.position.set(0, seatY + 0.06, 0.02);
+        ch.add(cushion);
+
+        // 4 Legs (back legs extend up to form backrest stiles)
+        for (const sx of [-1, 1]) {
+          const frontLeg = new THREE.Mesh(new THREE.BoxGeometry(0.09, seatY, 0.09), chairWoodMat);
+          frontLeg.position.set(sx * (cW / 2 - 0.06), seatY / 2, cD / 2 - 0.06);
+          ch.add(frontLeg);
+
+          const backPost = new THREE.Mesh(new THREE.BoxGeometry(0.09, seatY + backH, 0.09), chairWoodMat);
+          backPost.position.set(sx * (cW / 2 - 0.06), (seatY + backH) / 2, -cD / 2 + 0.06);
+          ch.add(backPost);
+        }
+        // Backrest horizontal slats
+        for (const ry of [seatY + 0.55, seatY + 1.05, seatY + backH - 0.14]) {
+          const slat = new THREE.Mesh(new THREE.BoxGeometry(cW - 0.12, 0.18, 0.06), chairWoodMat);
+          slat.position.set(0, ry, -cD / 2 + 0.06);
+          ch.add(slat);
+        }
+        diningGroup.add(ch);
+      }
+
+      // 2 chairs on North (-Z) side, 2 on South (+Z) side, 1 on West (-X) end, 1 on East (+X) end
+      addDiningChair(dtCX - 1.25, dtCZ - dtWid / 2 - 0.55, 0);
+      addDiningChair(dtCX + 1.25, dtCZ - dtWid / 2 - 0.55, 0);
+      addDiningChair(dtCX - 1.25, dtCZ + dtWid / 2 + 0.55, Math.PI);
+      addDiningChair(dtCX + 1.25, dtCZ + dtWid / 2 + 0.55, Math.PI);
+      addDiningChair(dtCX - dtLen / 2 - 0.55, dtCZ, Math.PI / 2);
+      addDiningChair(dtCX + dtLen / 2 + 0.55, dtCZ, -Math.PI / 2);
+
+      furnitureGroup.add(diningGroup);
     })();
 
     // =========================================================================
@@ -4603,7 +4767,7 @@
     // =========================================================================
     let currentViewMode = 'current';   // 'current' | 'complete'
     let studioPlanVisible = false;     // Studio 2D plan visibility preference (default OFF)
-    let studioFurnitureVisible = false; // Studio furniture visibility preference (default OFF)
+    let studioFurnitureVisible = true;  // Studio furniture visibility preference (default ON)
 
     if (urlParams.get('view')) currentViewMode = urlParams.get('view');
 
@@ -4698,6 +4862,7 @@
       pitch: DEFAULT_MAP_PITCH,
       maxPitch: 85,
       bearing: DEFAULT_MAP_BEARING,
+      attributionControl: false,
       canvasContextAttributes: { antialias: true }
     });
     window.map = map;
