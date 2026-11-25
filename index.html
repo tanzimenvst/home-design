@@ -2523,6 +2523,128 @@
       addBed(56.1679 - 8.68 / 2, 27.1168 - 7.2 / 2, 7.2, 8.68, 'E');
 
       furnitureGroup.add(bedsGroup);
+
+      // 9. Room 2 (SW Bedroom) Bedside Table & Wall Almirah with Center Dressing Mirror Recess
+      const r2FurnGroup = new THREE.Group();
+      r2FurnGroup.name = 'room2AlmirahAndBedside';
+
+      // Bedside table (blue box): flush to East staircase wall (X = 23.5401), just north of bed (Z = 31.3036)
+      const nsW = 1.65, nsD = 1.75, nsH = 1.85;
+      const nsCX = 23.5401 - nsW / 2, nsCZ = 31.3036 - 0.15 - nsD / 2;
+      const nsPlinth = new THREE.Mesh(new THREE.BoxGeometry(nsW - 0.14, 0.18, nsD - 0.14), woodDarkMat);
+      nsPlinth.position.set(nsCX, 0.09, nsCZ);
+      r2FurnGroup.add(nsPlinth);
+      const nsBody = new THREE.Mesh(new THREE.BoxGeometry(nsW, nsH - 0.26, nsD), woodDarkMat);
+      nsBody.position.set(nsCX, 0.18 + (nsH - 0.26) / 2, nsCZ);
+      r2FurnGroup.add(nsBody);
+      const nsTop = new THREE.Mesh(new THREE.BoxGeometry(nsW + 0.06, 0.08, nsD + 0.06), woodLightMat);
+      nsTop.position.set(nsCX, nsH - 0.04, nsCZ);
+      r2FurnGroup.add(nsTop);
+      for (const dy of [0.58, 1.30]) {
+        const drw = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.62, nsD - 0.20), cabDoorMat);
+        drw.position.set(nsCX - nsW / 2 - 0.02, dy, nsCZ);
+        r2FurnGroup.add(drw);
+        const hnd = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.05, 0.36), handleMat);
+        hnd.position.set(nsCX - nsW / 2 - 0.055, dy, nsCZ);
+        r2FurnGroup.add(hnd);
+      }
+
+      // Wall Almirah (red outline): flush to North wall (Z = 25.1460) and West wall (X = 10.6204) up to door jamb (X = 19.5255)
+      const almX0 = 10.6204, almX1 = 19.5255, almZ0 = 25.1460, almD = 2.00, almZ1 = almZ0 + almD, almH = 8.50;
+      const dressX0 = 13.20, dressX1 = 15.80; // Center dressing table & mirror gap (green border)
+      const mirrorRecessZ = almZ0 + 0.90;
+
+      // Left wardrobe section (X: 10.6204 .. 13.20)
+      const leftW = dressX0 - almX0;
+      const leftAlm = new THREE.Mesh(new THREE.BoxGeometry(leftW, almH, almD), woodDarkMat);
+      leftAlm.position.set(almX0 + leftW / 2, almH / 2, almZ0 + almD / 2);
+      r2FurnGroup.add(leftAlm);
+      for (let i = 0; i < 2; i++) {
+        const dw = (leftW - 0.14) / 2;
+        const dx = almX0 + 0.05 + dw / 2 + i * (dw + 0.04);
+        const door = new THREE.Mesh(new THREE.BoxGeometry(dw, almH - 0.30, 0.05), cabDoorMat);
+        door.position.set(dx, almH / 2, almZ1 + 0.025);
+        r2FurnGroup.add(door);
+        const hnd = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.45, 0.04), handleMat);
+        hnd.position.set(dx + (i === 0 ? dw / 2 - 0.10 : -dw / 2 + 0.10), 4.0, almZ1 + 0.06);
+        r2FurnGroup.add(hnd);
+      }
+
+      // Center dressing table & mirror recess (X: 13.20 .. 15.80)
+      const dressW = dressX1 - dressX0;
+      const dressCX = (dressX0 + dressX1) / 2;
+      // Lower cabinet (0 .. 2.50 ft)
+      const dressBase = new THREE.Mesh(new THREE.BoxGeometry(dressW, 2.42, almD), woodDarkMat);
+      dressBase.position.set(dressCX, 1.21, almZ0 + almD / 2);
+      r2FurnGroup.add(dressBase);
+      const dressCounter = new THREE.Mesh(new THREE.BoxGeometry(dressW, 0.08, almD + 0.04), woodLightMat);
+      dressCounter.position.set(dressCX, 2.46, almZ0 + almD / 2 + 0.02);
+      r2FurnGroup.add(dressCounter);
+      for (const dy of [0.75, 1.80]) {
+        const drw = new THREE.Mesh(new THREE.BoxGeometry(dressW - 0.14, 0.85, 0.05), cabDoorMat);
+        drw.position.set(dressCX, dy, almZ1 + 0.025);
+        r2FurnGroup.add(drw);
+        const hnd = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.04, 0.04), handleMat);
+        hnd.position.set(dressCX, dy, almZ1 + 0.06);
+        r2FurnGroup.add(hnd);
+      }
+      // Recessed back panel (2.50 .. 6.80 ft) creating front gap from Z = 27.146 back to Z = 26.046
+      const nicheBack = new THREE.Mesh(new THREE.BoxGeometry(dressW, 4.30, mirrorRecessZ - almZ0), woodDarkMat);
+      nicheBack.position.set(dressCX, 2.50 + 2.15, (almZ0 + mirrorRecessZ) / 2);
+      r2FurnGroup.add(nicheBack);
+      const mirrorMat = new THREE.MeshStandardMaterial({ color: '#d4e8f0', roughness: 0.10, metalness: 0.35, emissive: '#627c85', emissiveIntensity: 0.28 });
+      const mirrorFrame = new THREE.Mesh(new THREE.BoxGeometry(dressW - 0.36, 3.80, 0.06), woodLightMat);
+      mirrorFrame.position.set(dressCX, 4.65, mirrorRecessZ + 0.03);
+      r2FurnGroup.add(mirrorFrame);
+      const mirrorGlass = new THREE.Mesh(new THREE.BoxGeometry(dressW - 0.52, 3.64, 0.02), mirrorMat);
+      mirrorGlass.position.set(dressCX, 4.65, mirrorRecessZ + 0.065);
+      r2FurnGroup.add(mirrorGlass);
+      // Upper cabinet bridge (6.80 .. 8.50 ft)
+      const upperBridge = new THREE.Mesh(new THREE.BoxGeometry(dressW, almH - 6.80, almD), woodDarkMat);
+      upperBridge.position.set(dressCX, 6.80 + (almH - 6.80) / 2, almZ0 + almD / 2);
+      r2FurnGroup.add(upperBridge);
+      for (let i = 0; i < 2; i++) {
+        const uw = (dressW - 0.14) / 2;
+        const ux = dressX0 + 0.05 + uw / 2 + i * (uw + 0.04);
+        const uDoor = new THREE.Mesh(new THREE.BoxGeometry(uw, almH - 6.96, 0.05), cabDoorMat);
+        uDoor.position.set(ux, 6.80 + (almH - 6.80) / 2, almZ1 + 0.025);
+        r2FurnGroup.add(uDoor);
+      }
+
+      // Right wardrobe section with 45-deg chamfered front-right corner (X: 15.80 .. 19.5255)
+      const chamfX = almX1 - 1.15;
+      const chamfZ = almZ1 - 1.15;
+      const rightShape = new THREE.Shape();
+      rightShape.moveTo(dressX1, -almZ0);
+      rightShape.lineTo(almX1, -almZ0);
+      rightShape.lineTo(almX1, -chamfZ);
+      rightShape.lineTo(chamfX, -almZ1);
+      rightShape.lineTo(dressX1, -almZ1);
+      rightShape.closePath();
+      const rightGeo = new THREE.ExtrudeGeometry(rightShape, { depth: almH, bevelEnabled: false });
+      rightGeo.rotateX(-Math.PI / 2);
+      const rightAlm = new THREE.Mesh(rightGeo, woodDarkMat);
+      r2FurnGroup.add(rightAlm);
+      // Flat front door on right section (X: 15.80 .. chamfX)
+      const rfW = chamfX - dressX1;
+      for (let i = 0; i < 2; i++) {
+        const dw = (rfW - 0.14) / 2;
+        const dx = dressX1 + 0.05 + dw / 2 + i * (dw + 0.04);
+        const door = new THREE.Mesh(new THREE.BoxGeometry(dw, almH - 0.30, 0.05), cabDoorMat);
+        door.position.set(dx, almH / 2, almZ1 + 0.025);
+        r2FurnGroup.add(door);
+        const hnd = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.45, 0.04), handleMat);
+        hnd.position.set(dx + (i === 0 ? dw / 2 - 0.10 : -dw / 2 + 0.10), 4.0, almZ1 + 0.06);
+        r2FurnGroup.add(hnd);
+      }
+      // Angled front-right panel on the chamfered face
+      const chamfLen = Math.hypot(almX1 - chamfX, almZ1 - chamfZ);
+      const chamfPanel = new THREE.Mesh(new THREE.BoxGeometry(chamfLen - 0.14, almH - 0.30, 0.05), cabDoorMat);
+      chamfPanel.position.set((chamfX + almX1) / 2 + 0.02, almH / 2, (almZ1 + chamfZ) / 2 + 0.02);
+      chamfPanel.rotation.y = Math.PI / 4;
+      r2FurnGroup.add(chamfPanel);
+
+      furnitureGroup.add(r2FurnGroup);
     })();
 
     // =========================================================================
